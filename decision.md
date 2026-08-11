@@ -59,3 +59,8 @@ This file records all architectural decisions, configuration choices, user const
 - **Date:** 2026-08-12
 - **Context:** Supabase client initialization was failing because `VITE_SUPABASE_URL` was misconfigured with the `/rest/v1/` REST API suffix instead of the base project domain.
 - **Implementation:** Updated `.env` to define `VITE_SUPABASE_URL=https://gnraltpcnutjcnfcwcfn.supabase.co` without the suffix, ensuring the Supabase JS SDK can correctly resolve sub-routes (such as `/auth/v1/...`).
+
+### Decision 10: Local Supabase CLI Integration
+- **Date:** 2026-08-12
+- **Context:** Running `supabase link` failed because the CLI is not globally installed on the environment.
+- **Implementation:** Added the `supabase` package as a local `devDependency` in `package.json` to allow the user to execute local Supabase commands (e.g. `npx supabase link`) out of the box.
