@@ -54,3 +54,8 @@ This file records all architectural decisions, configuration choices, user const
 - **Date:** 2026-08-12
 - **Context:** Original `.env.example` only had `GEMINI_API_KEY`, `APP_URL`, and Supabase keys.
 - **Implementation:** Added `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `PORT`, and `NODE_ENV` fields with documentation comments linking to credential dashboards.
+
+### Decision 9: Fix Supabase URL in environment configuration
+- **Date:** 2026-08-12
+- **Context:** Supabase client initialization was failing because `VITE_SUPABASE_URL` was misconfigured with the `/rest/v1/` REST API suffix instead of the base project domain.
+- **Implementation:** Updated `.env` to define `VITE_SUPABASE_URL=https://gnraltpcnutjcnfcwcfn.supabase.co` without the suffix, ensuring the Supabase JS SDK can correctly resolve sub-routes (such as `/auth/v1/...`).
