@@ -1,0 +1,6 @@
+{
+  "name": "SchrodingerAi",
+  "description": "AI-powered creator studio & automation platform by SchrodingerAi",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
