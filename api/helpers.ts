@@ -121,7 +121,7 @@ export function extractJson(text: string): any | null {
   cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
   try {
     return JSON.parse(cleaned);
-  } catch {
+  } catch (error) {
     // ignore
   }
   const objMatch = cleaned.match(/\{[\s\S]*\}/);
@@ -132,7 +132,7 @@ export function extractJson(text: string): any | null {
     candidate = candidate.replace(/,(\s*[\]}])/g, "$1");
     try {
       return JSON.parse(candidate);
-    } catch {
+    } catch (error) {
       // ignore
     }
   }

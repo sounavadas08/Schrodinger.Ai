@@ -70,3 +70,12 @@ This file records all architectural decisions, configuration choices, user const
 - **Context:** Local execution of the Supabase CLI creates a `.temp/` directory with workspace-specific linking config that should not be tracked in git.
 - **Implementation:** Added `supabase/.temp/` to `.gitignore`.
 
+### Decision 12: Resolve Vercel FUNCTION_INVOCATION_FAILED & Cobalt API Integration
+- **Date:** 2026-08-12
+- **Context:** Vercel serverless functions failed with `FUNCTION_INVOCATION_FAILED` due to uncompiled relative imports located in directories starting with underscores (e.g. `api/_lib/helpers.ts`), which Vercel ignores. The YouTube and Instagram downloaders were using buggy, un-awaited `setTimeout` blocks and only returning mock data.
+- **Implementation:** 
+  - Moved `api/_lib/helpers.ts` to `api/helpers.ts` to guarantee it compiles under Vercel's bundler.
+  - Updated all 6 API routes (`generate-image`, `generate-routine`, `generate-script`, `plan-content`, `config`, `text-to-speech`) to import from `./helpers.js`.
+  - Replaced the `setTimeout` blocks in `youtube-to-mp3.ts` and `ig-download.ts` with real-world async/await integrations to `https://cobaltapi.cjs.nz/` (a verified public Cobalt API instance) to enable actual media downloads for real URLs, with graceful fallbacks.
+
+
