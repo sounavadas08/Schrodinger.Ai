@@ -1,7 +1,12 @@
-import { getGenAIClient, getCloudflareConfig, getProvider, callCloudflareWorkersAI, extractJson, Type } from "./helpers.js";
+import { getGenAIClient, getCloudflareConfig, getProvider, callCloudflareWorkersAI, extractJson, Type, checkIpLimit } from "./helpers.js";
 
 export default async function handler(req: any, res: any) {
   try {
+    const ipCheck = await checkIpLimit(req);
+    if (!ipCheck.allowed) {
+      return res.status(429).json({ error: ipCheck.error });
+    }
+
     const { genre = "YouTube Explainer", topic = "", tone = "engaging", provider: bodyProvider = "auto" } = req.body || {};
     if (!topic || !topic.trim()) {
       return res.status(400).json({ error: "A content topic is required" });

@@ -14,6 +14,19 @@ export function getApiHeaders(): Record<string, string> {
     if (cfApiToken) headers['x-cloudflare-api-token'] = cfApiToken;
     if (geminiApiKey) headers['x-gemini-api-key'] = geminiApiKey;
 
+    const userSessionStr = localStorage.getItem('schrodinger_user_session');
+    if (userSessionStr) {
+      try {
+        const user = JSON.parse(userSessionStr);
+        if (user && user.id) {
+          headers['x-user-id'] = user.id;
+          headers['x-user-provider'] = user.provider || 'guest';
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+
     const viteSupabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
     const viteSupabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
     const supabaseConfigured = Boolean(

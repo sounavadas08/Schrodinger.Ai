@@ -138,3 +138,87 @@ export function extractJson(text: string): any | null {
   }
   return null;
 }
+
+// IP counts cache for best-effort in-memory fallback
+const ipCounts: Record<string, number> = {};
+
+let cachedSupabase: any = null;
+async function getSupabase() {
+  if (cachedSupabase) return cachedSupabase;
+  const url = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const key = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+  if (url && key && !url.includes("YOUR_SUPABASE")) {
+    try {
+      const { createClient } = await import("@supabase/supabase-js");
+      cachedSupabase = createClient(url, key);
+    } catch (e) {
+      console.warn("Failed to load @supabase/supabase-js dynamically:", e);
+    }
+  }
+  return cachedSupabase;
+}
+
+export async function checkIpLimit(req: any): Promise<{ allowed: boolean; error?: string }> {
+  // 1. Check if user is logged in via request headers
+  const userId = req.headers?.["x-user-id"];
+  const isGuest = !userId || userId.startsWith("guest_") || userId === "guest_user_default";
+
+  if (!isGuest) {
+    return { allowed: true };
+  }
+
+  // 2. Resolve client IP
+  const forwarded = req.headers?.["x-forwarded-for"];
+  const rawIp = typeof forwarded === "string" ? forwarded.split(",")[0] : (req.headers?.["x-real-ip"] || req.ip || "unknown");
+  const ip = (Array.isArray(rawIp) ? rawIp[0] : String(rawIp)).trim();
+
+  if (ip === "unknown") {
+    return { allowed: true }; // allow if IP cannot be resolved
+  }
+
+  // 3. Check Supabase first if configured
+  const supabaseClient = await getSupabase();
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("ip_usage")
+        .select("count")
+        .eq("ip", ip)
+        .single();
+      
+      let currentCount = 0;
+      if (data && !error) {
+        currentCount = data.count;
+      }
+      
+      if (currentCount >= 3) {
+        return { 
+          allowed: false, 
+          error: "Free usage limit exceeded (3 requests max per device). Please log in to continue using Schrödinger AI tools." 
+        };
+      }
+
+      // Increment count in Supabase
+      await supabaseClient.from("ip_usage").upsert({
+        ip,
+        count: currentCount + 1,
+        last_request: new Date().toISOString()
+      });
+      return { allowed: true };
+    } catch (e: any) {
+      console.warn("Supabase IP limit check failed, falling back to memory:", e.message);
+    }
+  }
+
+  // 4. In-memory fallback
+  const currentCount = ipCounts[ip] || 0;
+  if (currentCount >= 3) {
+    return { 
+      allowed: false, 
+      error: "Free usage limit exceeded (3 requests max per device). Please log in to continue using Schrödinger AI tools." 
+    };
+  }
+
+  ipCounts[ip] = currentCount + 1;
+  return { allowed: true };
+}

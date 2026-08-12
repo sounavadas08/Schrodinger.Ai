@@ -1,7 +1,12 @@
-import { getCloudflareConfig } from "./helpers.js";
+import { getCloudflareConfig, checkIpLimit } from "./helpers.js";
 
 export default async function handler(req: any, res: any) {
   try {
+    const ipCheck = await checkIpLimit(req);
+    if (!ipCheck.allowed) {
+      return res.status(429).json({ error: ipCheck.error });
+    }
+
     const { text, lang = "en" } = req.body || {};
     if (!text || !text.trim()) {
       return res.status(400).json({ error: "Text is required" });

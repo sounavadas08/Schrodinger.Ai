@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Settings, Cpu, Key, Check, Server, ShieldCheck } from 'lucide-react';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -7,6 +9,7 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
+  const { user } = useAuth();
   const [provider, setProvider] = useState<'auto' | 'cloudflare' | 'gemini'>('auto');
   const [cfAccountId, setCfAccountId] = useState('');
   const [cfApiToken, setCfApiToken] = useState('');
@@ -24,12 +27,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   if (!isOpen) return null;
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     localStorage.setItem('ai_provider', provider);
     localStorage.setItem('cf_account_id', cfAccountId.trim());
     localStorage.setItem('cf_api_token', cfApiToken.trim());
     localStorage.setItem('gemini_api_key', geminiApiKey.trim());
+
+    // Synchronize settings with database if logged in
+    if (isSupabaseConfigured && supabase && user && user.provider !== 'guest') {
+      try {
+        await supabase.from('user_settings').upsert({
+          user_id: user.id,
+          ai_provider: provider,
+          cf_account_id: cfAccountId.trim(),
+          cf_api_token: cfApiToken.trim(),
+          gemini_api_key: geminiApiKey.trim(),
+          updated_at: new Date().toISOString()
+        });
+      } catch (err) {
+        console.error('Failed to sync settings to Supabase:', err);
+      }
+    }
 
     setSavedSuccess(true);
     setTimeout(() => {

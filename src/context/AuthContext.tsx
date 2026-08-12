@@ -20,6 +20,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Sync user state with local storage for easy cross-module access
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('schrodinger_user_session', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('schrodinger_user_session');
+    }
+  }, [user]);
+
+  const fetchAndRestoreUserSettings = async (userId: string) => {
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('user_settings')
+          .select('*')
+          .eq('user_id', userId)
+          .single();
+        if (data && !error) {
+          localStorage.setItem('ai_provider', data.ai_provider || 'auto');
+          localStorage.setItem('cf_account_id', data.cf_account_id || '');
+          localStorage.setItem('cf_api_token', data.cf_api_token || '');
+          localStorage.setItem('gemini_api_key', data.gemini_api_key || '');
+        }
+      } catch (err) {
+        console.warn('Failed to restore user settings from Supabase:', err);
+      }
+    }
+  };
+
   useEffect(() => {
     // Check initial local session or Supabase session
     const initAuth = async () => {
@@ -34,10 +63,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               avatarUrl: session.user.user_metadata?.avatar_url,
               provider: 'supabase'
             });
+            // Restore user API keys from database
+            await fetchAndRestoreUserSettings(session.user.id);
           }
 
           // Listen for auth state changes from Supabase
-          supabase.auth.onAuthStateChange((_event, session) => {
+          supabase.auth.onAuthStateChange(async (_event, session) => {
             if (session?.user) {
               setUser({
                 id: session.user.id,
@@ -46,6 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 avatarUrl: session.user.user_metadata?.avatar_url,
                 provider: 'supabase'
               });
+              await fetchAndRestoreUserSettings(session.user.id);
             } else {
               // check if local guest user exists
               const savedUser = localStorage.getItem('schrodinger_local_user');
@@ -84,9 +116,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signInWithEmail = async (email: string, pass: string) => {
+    const blockKey = `login_block_${email}`;
+    const attemptsKey = `login_attempts_${email}`;
+
+    // Check lockout status
+    const blockedUntil = localStorage.getItem(blockKey);
+    if (blockedUntil && Date.now() < Number(blockedUntil)) {
+      const remainingMin = Math.ceil((Number(blockedUntil) - Date.now()) / 60000);
+      return { 
+        success: false, 
+        error: `Too many failed attempts. Try again in ${remainingMin} minute${remainingMin > 1 ? 's' : ''}.` 
+      };
+    }
+
     if (isSupabaseConfigured && supabase) {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
-      if (error) return { success: false, error: error.message };
+      if (error) {
+        // Track failures
+        const currentAttempts = (Number(localStorage.getItem(attemptsKey)) || 0) + 1;
+        if (currentAttempts >= 3) {
+          localStorage.setItem(blockKey, String(Date.now() + 15 * 60 * 1000)); // 15 mins block
+          localStorage.removeItem(attemptsKey);
+          return { success: false, error: 'Too many failed login attempts. Try again in 15 minutes.' };
+        } else {
+          localStorage.setItem(attemptsKey, String(currentAttempts));
+          return { success: false, error: `${error.message} (${3 - currentAttempts} attempts remaining)` };
+        }
+      }
+      // Reset attempts on success
+      localStorage.removeItem(attemptsKey);
+      localStorage.removeItem(blockKey);
+
       if (data.user) {
         const u: AuthUser = {
           id: data.user.id,
@@ -95,14 +155,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           provider: 'supabase'
         };
         setUser(u);
+        await fetchAndRestoreUserSettings(data.user.id);
         return { success: true };
       }
     }
 
-    // Local authentication fallback for direct testing
-    if (pass.length < 6) {
-      return { success: false, error: 'Password must be at least 6 characters' };
+    // Local authentication fallback for direct testing (correct password is creator123)
+    const correctPass = "creator123";
+    if (pass !== correctPass) {
+      const currentAttempts = (Number(localStorage.getItem(attemptsKey)) || 0) + 1;
+      if (currentAttempts >= 3) {
+        localStorage.setItem(blockKey, String(Date.now() + 15 * 60 * 1000)); // 15 mins block
+        localStorage.removeItem(attemptsKey);
+        return { success: false, error: 'Too many failed login attempts. Try again in 15 minutes.' };
+      } else {
+        localStorage.setItem(attemptsKey, String(currentAttempts));
+        return { success: false, error: `Incorrect password. (${3 - currentAttempts} attempts remaining)` };
+      }
     }
+
+    // Reset attempts on success
+    localStorage.removeItem(attemptsKey);
+    localStorage.removeItem(blockKey);
+
     const localUser: AuthUser = {
       id: `user_${Date.now()}`,
       email,

@@ -1,7 +1,12 @@
-import { getGenAIClient, getCloudflareConfig, getProvider, callCloudflareWorkersAI, extractJson, Type } from "./helpers.js";
+import { getGenAIClient, getCloudflareConfig, getProvider, callCloudflareWorkersAI, extractJson, Type, checkIpLimit } from "./helpers.js";
 
 export default async function handler(req: any, res: any) {
   try {
+    const ipCheck = await checkIpLimit(req);
+    if (!ipCheck.allowed) {
+      return res.status(429).json({ error: ipCheck.error });
+    }
+
     const { niche = "Tech & AI", platform = "YouTube", provider: bodyProvider = "auto" } = req.body || {};
     const provider = getProvider(req, bodyProvider);
 
