@@ -15,7 +15,7 @@ export default async function handler(req: any, res: any) {
           "Authorization": `Bearer ${cfConfig.apiToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ prompt: "Hello test", lang: "en" }),
+        body: JSON.stringify({ text: "Hello test" }),
       });
       const json = await response.json().catch(() => null);
       errorInfo = {
