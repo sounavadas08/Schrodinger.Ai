@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Sheets - Schrodinger AI Calendar</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sheets-green: #0f9d58;
+      --sheets-green-hover: #0b8043;
+      --sheets-gray-border: #dadce0;
+      --sheets-selected-blue: #e8f0fe;
+      --sheets-selected-border: #1a73e8;
+      --sheets-header-bg: #f8f9fa;
+      --sheets-text: #3c4043;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      color: var(--sheets-text);
+      background-color: #ffffff;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Bar / Header */
+    .header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      border-b: 1px solid var(--sheets-gray-border);
+      background-color: #ffffff;
+    }
+
+    .left-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sheets-icon {
+      width: 40px;
+      height: 40px;
+      background-color: var(--sheets-green);
+      color: white;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 20px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .title-area {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sheet-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #202124;
+      outline: none;
+      border: 1px solid transparent;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .sheet-title:focus {
+      border-color: var(--sheets-selected-border);
+    }
+
+    .menu-bar {
+      display: flex;
+      gap: 12px;
+      margin-top: 4px;
+      list-style: none;
+      font-size: 12px;
+      color: #5f6368;
+    }
+
+    .menu-item {
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .menu-item:hover {
+      background-color: #f1f3f4;
+      color: #202124;
+    }
+
+    /* Action Button */
+    .sync-btn {
+      background-color: var(--sheets-green);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .sync-btn:hover {
+      background-color: var(--sheets-green-hover);
+    }
+    .sync-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Formula Bar */
+    .formula-bar {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--sheets-gray-border);
+      background-color: #ffffff;
+      padding: 4px 8px;
+      font-size: 13px;
+    }
+
+    .cell-name-box {
+      width: 60px;
+      padding: 4px;
+      border-right: 1px solid var(--sheets-gray-border);
+      font-weight: bold;
+      text-align: center;
+      color: #5f6368;
+    }
+
+    .formula-icon {
+      padding: 0 8px;
+      color: #9aa0a6;
+      font-style: italic;
+      font-family: serif;
+      font-weight: bold;
+      border-right: 1px solid var(--sheets-gray-border);
+    }
+
+    .formula-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 4px 12px;
+      color: #202124;
+      font-family: monospace;
+    }
+
+    /* Grid Area */
+    .grid-container {
+      flex: 1;
+      overflow: auto;
+      position: relative;
+      background-color: #f8f9fa;
+    }
+
+    table.sheets-table {
+      border-collapse: collapse;
+      background-color: #ffffff;
+      font-size: 13px;
+      color: #333;
+      width: 100%;
+      min-width: 800px;
+    }
+
+    /* Table headers */
+    th.grid-header {
+      background-color: var(--sheets-header-bg);
+      border: 1px solid var(--sheets-gray-border);
+      font-weight: normal;
+      color: #5f6368;
+      text-align: center;
+      user-select: none;
+      height: 25px;
+    }
+
+    th.col-letter {
+      width: 150px;
+    }
+    th.col-letter.col-index { width: 50px; }
+    th.col-letter.col-theme { width: 250px; }
+    th.col-letter.col-snippet { width: 400px; }
+
+    td.row-number {
+      background-color: var(--sheets-header-bg);
+      border: 1px solid var(--sheets-gray-border);
+      text-align: center;
+      color: #5f6368;
+      width: 50px;
+      user-select: none;
+    }
+
+    /* Table cells */
+    td.grid-cell {
+      border: 1px solid var(--sheets-gray-border);
+      height: 28px;
+      padding: 4px 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: cell;
+      outline: none;
+    }
+    td.grid-cell:focus {
+      border: 2px solid var(--sheets-selected-border);
+      padding: 3px 7px;
+      background-color: #ffffff;
+    }
+
+    /* Status styling */
+    .status-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+    .status-drafted { background-color: #e8f0fe; color: #1a73e8; }
+    .status-approved { background-color: #e6f4ea; color: #137333; }
+    .status-scheduled { background-color: #fef7e0; color: #b06000; }
+
+    /* Alert Banner */
+    .alert-banner {
+      background-color: #e8f0fe;
+      border-bottom: 1px solid #d2e3fc;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #1967d2;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .banner-text {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .banner-icon {
+      font-size: 16px;
+    }
+
+    .close-banner {
+      cursor: pointer;
+      font-weight: bold;
+      opacity: 0.7;
+    }
+    .close-banner:hover {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Alert Banner -->
+  <div class="alert-banner" id="banner">
+    <div class="banner-text">
+      <span class="banner-icon">ℹ</span>
+      <span><strong>Schrodinger Sheets Sync Active:</strong> We prepared your customized rows and columns below. Click "Export & Open in Google Sheets" to paste directly into your real Google account!</span>
+    </div>
+    <span class="close-banner" onclick="document.getElementById('banner').style.display='none'">✕</span>
+  </div>
+
+  <!-- Header -->
+  <div class="header-bar">
+    <div class="left-section">
+      <div class="sheets-icon">田</div>
+      <div class="title-area">
+        <input type="text" class="sheet-title" value="Schrodinger AI - Content Calendar Plan" id="sheetTitle">
+        <ul class="menu-bar">
+          <li class="menu-item">File</li>
+          <li class="menu-item">Edit</li>
+          <li class="menu-item">View</li>
+          <li class="menu-item">Insert</li>
+          <li class="menu-item">Format</li>
+          <li class="menu-item">Data</li>
+          <li class="menu-item">Tools</li>
+          <li class="menu-item">Extensions</li>
+          <li class="menu-item">Help</li>
+        </ul>
+      </div>
+    </div>
+    
+    <button class="sync-btn" onclick="copyAndRedirect()">
+      <span>Export & Open in Google Sheets</span>
+      <span>↗</span>
+    </button>
+  </div>
+
+  <!-- Formula Bar -->
+  <div class="formula-bar">
+    <div class="cell-name-box" id="cellName">A1</div>
+    <div class="formula-icon">fx</div>
+    <input type="text" class="formula-input" id="formulaInput" readonly value="Schrodinger AI Content Export">
+  </div>
+
+  <!-- Grid Area -->
+  <div class="grid-container">
+    <table class="sheets-table">
+      <thead>
+        <tr>
+          <th class="grid-header col-index"></th>
+          <th class="grid-header col-letter">A</th>
+          <th class="grid-header col-letter">B</th>
+          <th class="grid-header col-letter col-theme">C</th>
+          <th class="grid-header col-letter col-theme col-snippet">D</th>
+          <th class="grid-header col-letter">E</th>
+        </tr>
+        <tr style="height: 30px;">
+          <th class="grid-header col-index"></th>
+          <th class="grid-header" style="font-weight: bold;">Date</th>
+          <th class="grid-header" style="font-weight: bold;">Platform</th>
+          <th class="grid-header" style="font-weight: bold;">Content Theme / Topic</th>
+          <th class="grid-header" style="font-weight: bold;">AI Output Script Snippet</th>
+          <th class="grid-header" style="font-weight: bold;">Status</th>
+        </tr>
+      </thead>
+      <tbody id="sheetsBody">
+        <!-- Dynmically loaded rows -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // Load rows from localStorage
+    const savedRowsStr = localStorage.getItem('schrodinger_content_rows');
+    let rows = [];
+    if (savedRowsStr) {
+      try {
+        rows = JSON.parse(savedRowsStr);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Default rows fallback if empty
+    if (rows.length === 0) {
+      rows = [
+        { date: '2026-08-12', platform: 'YouTube', theme: 'Top 5 AI Tools Replacing Video Editors', snippet: 'Hook: "If you are still spending 4 hours cutting jump cuts manually, watch this..."', status: 'Approved' },
+        { date: '2026-08-14', platform: 'Instagram', theme: 'Automating Creator Workflows with n8n', snippet: 'Reel: 3-step automation diagram showing Drive -> Whisper -> Captions -> Sheet.', status: 'Scheduled' },
+        { date: '2026-08-16', platform: 'X (Twitter)', theme: 'Multi-Agent Autonomous Frameworks Breakdown', snippet: 'Thread: "1/8 Why 2026 is the year single-purpose chatbots die and agent teams take over..."', status: 'Drafted' }
+      ];
+    }
+
+    const tbody = document.getElementById('sheetsBody');
+    rows.forEach((row, index) => {
+      const tr = document.createElement('tr');
+      
+      // Row Number col
+      const tdNum = document.createElement('td');
+      tdNum.className = 'row-number';
+      tdNum.innerText = index + 1;
+      tr.appendChild(tdNum);
+
+      // Col A: Date
+      const tdDate = document.createElement('td');
+      tdDate.className = 'grid-cell';
+      tdDate.contentEditable = true;
+      tdDate.innerText = row.date;
+      tdDate.dataset.cellName = `A${index + 2}`;
+      tdDate.addEventListener('focus', () => selectCell(tdDate));
+      tr.appendChild(tdDate);
+
+      // Col B: Platform
+      const tdPlatform = document.createElement('td');
+      tdPlatform.className = 'grid-cell';
+      tdPlatform.contentEditable = true;
+      tdPlatform.innerText = row.platform;
+      tdPlatform.dataset.cellName = `B${index + 2}`;
+      tdPlatform.addEventListener('focus', () => selectCell(tdPlatform));
+      tr.appendChild(tdPlatform);
+
+      // Col C: Theme
+      const tdTheme = document.createElement('td');
+      tdTheme.className = 'grid-cell';
+      tdTheme.contentEditable = true;
+      tdTheme.innerText = row.theme;
+      tdTheme.dataset.cellName = `C${index + 2}`;
+      tdTheme.addEventListener('focus', () => selectCell(tdTheme));
+      tr.appendChild(tdTheme);
+
+      // Col D: Snippet
+      const tdSnippet = document.createElement('td');
+      tdSnippet.className = 'grid-cell';
+      tdSnippet.contentEditable = true;
+      tdSnippet.innerText = row.snippet;
+      tdSnippet.dataset.cellName = `D${index + 2}`;
+      tdSnippet.addEventListener('focus', () => selectCell(tdSnippet));
+      tr.appendChild(tdSnippet);
+
+      // Col E: Status
+      const tdStatus = document.createElement('td');
+      tdStatus.className = 'grid-cell';
+      tdStatus.contentEditable = true;
+      tdStatus.innerHTML = `<span class="status-badge status-${row.status.toLowerCase()}">${row.status}</span>`;
+      tdStatus.dataset.cellName = `E${index + 2}`;
+      tdStatus.addEventListener('focus', () => selectCell(tdStatus));
+      tr.appendChild(tdStatus);
+
+      tbody.appendChild(tr);
+    });
+
+    // Populate extra empty rows to look like a real sheet
+    for (let index = rows.length; index < 25; index++) {
+      const tr = document.createElement('tr');
+      const tdNum = document.createElement('td');
+      tdNum.className = 'row-number';
+      tdNum.innerText = index + 1;
+      tr.appendChild(tdNum);
+
+      for (let c = 0; c < 5; c++) {
+        const colLetter = ['A', 'B', 'C', 'D', 'E'][c];
+        const td = document.createElement('td');
+        td.className = 'grid-cell';
+        td.contentEditable = true;
+        td.dataset.cellName = `${colLetter}${index + 2}`;
+        td.addEventListener('focus', () => selectCell(td));
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+
+    function selectCell(cell) {
+      document.getElementById('cellName').innerText = cell.dataset.cellName;
+      document.getElementById('formulaInput').value = cell.innerText;
+    }
+
+    function copyAndRedirect() {
+      // 1. Build TSV formatted string
+      let tsv = "Date\tPlatform\tContent Theme / Topic\tAI Output Script Snippet\tStatus\n";
+      rows.forEach(row => {
+        tsv += `${row.date}\t${row.platform}\t${row.theme}\t${row.snippet}\t${row.status}\n`;
+      });
+
+      // 2. Copy TSV string to clipboard
+      navigator.clipboard.writeText(tsv).then(() => {
+        alert("📊 Spreadsheet data copied to clipboard! Opening Google Sheets now. Press Ctrl+V (or Cmd+V) to paste the entire table into columns!");
+        // 3. Open sheets.new to let them paste
+        window.open('https://sheets.new', '_blank');
+      }).catch(err => {
+        console.error("Clipboard copy failed:", err);
+        window.open('https://sheets.new', '_blank');
+      });
+    }
+  </script>
+</body>
+</html>

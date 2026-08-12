@@ -39,6 +39,19 @@ export const ImageGeneratorTool: React.FC = () => {
     loadHistory();
   }, [user?.id]);
 
+  useEffect(() => {
+    const handleTrigger = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && customEvent.detail.prompt) {
+        setPrompt(customEvent.detail.prompt);
+        setActiveTab('generator');
+        handleGenerate(customEvent.detail.prompt);
+      }
+    };
+    window.addEventListener('trigger-image-gen', handleTrigger);
+    return () => window.removeEventListener('trigger-image-gen', handleTrigger);
+  }, []);
+
   const loadHistory = async () => {
     const items = await fetchPromptHistory(user?.id);
     setHistoryItems(items);

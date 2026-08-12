@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bot, Power, FileSpreadsheet, Sparkles, CheckCircle2, Trash2, RefreshCw } from 'lucide-react';
+import { Bot, Power, FileSpreadsheet, Sparkles, CheckCircle2, Trash2, RefreshCw, Image } from 'lucide-react';
 import { ContentRow } from '../types';
 import { getApiHeaders, safeResponseJson } from '../lib/apiHelper';
+import { ImageGeneratorTool } from './tools/ImageGeneratorTool';
 
 export const ContentCreatorAgent: React.FC = () => {
   const [agentActive, setAgentActive] = useState<boolean>(() => {
@@ -102,6 +103,17 @@ export const ContentCreatorAgent: React.FC = () => {
 
   const updateRowStatus = (id: string, newStatus: ContentRow['status']) => {
     setRows(rows.map((r) => (r.id === id ? { ...r, status: newStatus } : r)));
+  };
+
+  const handleGenerateVisual = (row: ContentRow) => {
+    const descriptivePrompt = `${row.theme}. Editorial design illustration, high contrast, clean composition.`;
+    window.dispatchEvent(new CustomEvent('trigger-image-gen', { 
+      detail: { prompt: descriptivePrompt } 
+    }));
+    const el = document.getElementById('visual-studio-vault');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -206,16 +218,12 @@ export const ContentCreatorAgent: React.FC = () => {
                 {/* Google Sheets Sync Pill */}
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setSheetsSynced(!sheetsSynced)}
-                    className={`flex items-center gap-2 px-3.5 py-2 text-xs font-mono border transition-colors cursor-pointer ${
-                      sheetsSynced
-                        ? 'bg-emerald-50 border-emerald-600/30 text-emerald-800'
-                        : 'bg-white border-[#121212]/20 text-[#121212]/60'
-                    }`}
+                    onClick={() => window.open('/export-sheets.html', '_blank')}
+                    className="flex items-center gap-2 px-3.5 py-2 text-xs font-mono border transition-colors cursor-pointer bg-emerald-50 border-emerald-600/30 text-emerald-800 hover:bg-emerald-100/50"
                   >
                     <FileSpreadsheet className="w-4 h-4 text-emerald-700" />
-                    <span className="font-bold text-[10px] tracking-wider uppercase">{sheetsSynced ? 'Synced with Sheets' : 'Connect Sheets'}</span>
-                    <CheckCircle2 className={`w-3.5 h-3.5 ${sheetsSynced ? 'text-emerald-700' : 'text-[#121212]/30'}`} />
+                    <span className="font-bold text-[10px] tracking-wider uppercase">Connect Sheets</span>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
                   </button>
 
                   <button
@@ -265,18 +273,32 @@ export const ContentCreatorAgent: React.FC = () => {
                           </select>
                         </td>
                         <td className="p-3.5 text-right">
-                          <button
-                            onClick={() => deleteRow(row.id)}
-                            className="p-1.5 border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors cursor-pointer"
-                            title="Delete Row"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => handleGenerateVisual(row)}
+                              className="p-1.5 border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors cursor-pointer"
+                              title="Generate Cover Visual"
+                            >
+                              <Image className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => deleteRow(row.id)}
+                              className="p-1.5 border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors cursor-pointer"
+                              title="Delete Row"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Merged Visual Generator Section */}
+              <div id="visual-studio-vault" className="mt-12 pt-8 border-t border-[#121212]/10 scroll-mt-24">
+                <ImageGeneratorTool />
               </div>
             </motion.div>
           )}
