@@ -63,8 +63,8 @@ export const Navbar: React.FC = () => {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           >
-            <div className="w-8 h-8 bg-[#121212] flex items-center justify-center text-[#F7F5F2] font-bold text-xs tracking-wider">
-              S.AI
+            <div className="w-8 h-8 bg-white border border-[#121212]/15 flex items-center justify-center overflow-hidden">
+              <img src="/logo.png" alt="Schrodinger AI Logo" className="w-full h-full object-cover scale-[1.3] translate-y-[-2%]" />
             </div>
             <div>
               <span className="text-xl font-serif font-bold tracking-tight text-[#121212]">
