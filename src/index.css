@@ -1,16 +1,7 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 @layer base {
   :root {
-    --bg-editorial: #F7F5F2;
-    --text-editorial: #121212;
-    --card-editorial: #FFFFFF;
-    --dark-editorial: #121212;
-  }
-
-  .dark {
     --bg-editorial: #121212;
     --text-editorial: #F7F5F2;
     --card-editorial: #191919;
@@ -19,18 +10,16 @@
 
   html {
     scroll-behavior: smooth;
-    color-scheme: light dark;
+    color-scheme: dark;
     background-color: var(--bg-editorial);
     color: var(--text-editorial);
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   body {
     overflow-x: hidden;
     background-color: var(--bg-editorial);
     color: var(--text-editorial);
-    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   h1, h2, h3, .font-editorial-serif {
@@ -50,27 +39,39 @@
     background: var(--bg-editorial);
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(18, 18, 18, 0.2);
-  }
-  .dark ::-webkit-scrollbar-thumb {
     background: rgba(247, 245, 242, 0.2);
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(18, 18, 18, 0.5);
-  }
-  .dark ::-webkit-scrollbar-thumb:hover {
     background: rgba(247, 245, 242, 0.5);
   }
+}
+
+/* Global compiled utility overrides to guarantee dark theme */
+.bg-\[\#F7F5F2\] {
+  background-color: #121212 !important;
+}
+
+.text-\[\#121212\] {
+  color: #F7F5F2 !important;
+}
+
+.bg-white {
+  background-color: #191919 !important;
+}
+
+.border-\[\#121212\]\/15, .border-\[\#121212\]\/20, .border-\[\#121212\]\/10 {
+  border-color: rgba(247, 245, 242, 0.1) !important;
+}
+
+.text-\[\#121212\]\/70, .text-\[\#121212\]\/60, .text-\[\#121212\]\/80 {
+  color: rgba(247, 245, 242, 0.75) !important;
 }
 
 /* Editorial Aesthetic Utilities */
 .glass-card, .editorial-card {
   background-color: var(--card-editorial);
-  border: 1px solid rgba(18, 18, 18, 0.12);
-  box-shadow: 0 1px 3px rgba(18, 18, 18, 0.03);
-}
-.dark .glass-card, .dark .editorial-card {
-  border-color: rgba(247, 245, 242, 0.12);
+  border: 1px solid rgba(247, 245, 242, 0.12);
+  box-shadow: 0 1px 3px rgba(18, 18, 18, 0.5);
 }
 
 .editorial-card-hover {
@@ -78,11 +79,8 @@
 }
 
 .editorial-card-hover:hover {
-  border-color: rgba(18, 18, 18, 0.4);
-  .dark &:hover {
-    border-color: rgba(247, 245, 242, 0.4);
-  }
-  box-shadow: 0 4px 16px rgba(18, 18, 18, 0.06);
+  border-color: rgba(247, 245, 242, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 .dark-editorial-card {
@@ -97,8 +95,8 @@
   align-items: center;
   gap: 0.375rem;
   padding: 0.25rem 0.625rem;
-  background-color: #121212;
-  color: #F7F5F2;
+  background-color: #F7F5F2;
+  color: #121212;
   font-size: 0.625rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -111,8 +109,8 @@
   gap: 0.375rem;
   padding: 0.25rem 0.625rem;
   background-color: transparent;
-  color: #121212;
-  border: 1px solid rgba(18, 18, 18, 0.2);
+  color: #F7F5F2;
+  border: 1px solid rgba(247, 245, 242, 0.3);
   font-size: 0.625rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -127,19 +125,19 @@
 
 /* Text Gradients replacement for editorial style */
 .text-gradient {
-  color: #121212;
+  color: #F7F5F2;
   font-family: 'Playfair Display', Georgia, serif;
   font-style: italic;
 }
 
 .text-gradient-cyan {
-  color: #121212;
+  color: #F7F5F2;
 }
 
 /* Editorial Rule */
 .editorial-rule {
   height: 1px;
-  background-color: rgba(18, 18, 18, 0.12);
+  background-color: rgba(247, 245, 242, 0.12);
 }
 
 /* Hide scrollbar utility (used in ToolsGallery tab bar) */
