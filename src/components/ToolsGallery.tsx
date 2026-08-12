@@ -36,7 +36,7 @@ export const ToolsGallery: React.FC = () => {
         </div>
 
         {/* Tab Navigation Gallery Pills */}
-        <div className="flex items-center justify-start md:justify-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+        <div className="flex items-center justify-start md:justify-center flex-nowrap md:flex-wrap gap-2 overflow-x-auto md:overflow-x-visible pb-3">
           {tools.map((tool) => {
             const Icon = tool.icon;
             const isActive = activeTab === tool.id;
