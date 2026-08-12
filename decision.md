@@ -78,4 +78,12 @@ This file records all architectural decisions, configuration choices, user const
   - Updated all 6 API routes (`generate-image`, `generate-routine`, `generate-script`, `plan-content`, `config`, `text-to-speech`) to import from `./helpers.js`.
   - Replaced the `setTimeout` blocks in `youtube-to-mp3.ts` and `ig-download.ts` with real-world async/await integrations to `https://cobaltapi.cjs.nz/` (a verified public Cobalt API instance) to enable actual media downloads for real URLs, with graceful fallbacks.
 
+### Decision 13: Implement Downloader API Failover Array
+- **Date:** 2026-08-12
+- **Context:** The public Cobalt instance `https://cobaltapi.cjs.nz/` was found to return `error.api.youtube.login` for YouTube Shorts URLs (blocked by YouTube's scraper protection).
+- **Implementation:** 
+  - Implemented an automatic failover list of Cobalt API instances in both `youtube-to-mp3.ts` and `ig-download.ts`.
+  - Integrated `https://rue-cobalt.xenon.zone/` (a highly operational, verified public instance resolving YouTube Shorts and Instagram) as the primary provider, with `https://cobaltapi.cjs.nz/` as a secondary fallback.
+
+
 

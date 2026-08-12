@@ -8,42 +8,49 @@ export default async function handler(req: any, res: any) {
     const match = url.match(/(?:v=|\/)([\w-]{11})/);
     const videoId = match ? match[1] : "dQw4w9WgXcQ";
 
-    // Attempt to download using Cobalt API instance
-    try {
-      const cobaltRes = await fetch("https://cobaltapi.cjs.nz/", {
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        },
-        body: JSON.stringify({
-          url: url,
-          downloadMode: "audio",
-          audioFormat: "mp3",
-          audioBitrate: bitrate
-        })
-      });
+    // Attempt to download using Cobalt API instances (with failover)
+    const cobaltInstances = [
+      "https://rue-cobalt.xenon.zone/",
+      "https://cobaltapi.cjs.nz/"
+    ];
 
-      if (cobaltRes.ok) {
-        const cobaltData = await cobaltRes.json();
-        if (cobaltData && cobaltData.url) {
-          return res.status(200).json({
-            success: true,
-            videoId,
-            title: cobaltData.filename || "Extracted Audio Stream",
-            channel: "Cobalt Audio Service",
-            duration: "N/A",
-            bitrate: `${bitrate} kbps`,
-            fileSize: "Dynamic Stream",
-            thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
-            audioUrl: cobaltData.url,
-            message: "Audio stream extracted successfully from YouTube in real-time!",
-          });
+    for (const cobaltUrl of cobaltInstances) {
+      try {
+        const cobaltRes = await fetch(cobaltUrl, {
+          method: "POST",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+          },
+          body: JSON.stringify({
+            url: url,
+            downloadMode: "audio",
+            audioFormat: "mp3",
+            audioBitrate: bitrate
+          })
+        });
+
+        if (cobaltRes.ok) {
+          const cobaltData = await cobaltRes.json();
+          if (cobaltData && cobaltData.url) {
+            return res.status(200).json({
+              success: true,
+              videoId,
+              title: cobaltData.filename || "Extracted Audio Stream",
+              channel: "Cobalt Audio Service",
+              duration: "N/A",
+              bitrate: `${bitrate} kbps`,
+              fileSize: "Dynamic Stream",
+              thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+              audioUrl: cobaltData.url,
+              message: "Audio stream extracted successfully from YouTube in real-time!",
+            });
+          }
         }
+      } catch (err: any) {
+        console.warn(`Cobalt extraction failed on ${cobaltUrl}:`, err.message);
       }
-    } catch (err: any) {
-      console.warn("Cobalt API extraction failed, falling back to mock: ", err.message);
     }
 
     // Graceful fallback to mock data

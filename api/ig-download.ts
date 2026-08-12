@@ -7,41 +7,48 @@ export default async function handler(req: any, res: any) {
 
     const isImage = format === "High-Res Image";
 
-    // Attempt to download using Cobalt API instance
-    try {
-      const cobaltRes = await fetch("https://cobaltapi.cjs.nz/", {
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        },
-        body: JSON.stringify({
-          url: url,
-          downloadMode: isImage ? "mute" : "auto", // mute means video only, auto is regular download
-          videoQuality: "1080"
-        })
-      });
+    // Attempt to download using Cobalt API instances (with failover)
+    const cobaltInstances = [
+      "https://rue-cobalt.xenon.zone/",
+      "https://cobaltapi.cjs.nz/"
+    ];
 
-      if (cobaltRes.ok) {
-        const cobaltData = await cobaltRes.json();
-        if (cobaltData && cobaltData.url) {
-          return res.status(200).json({
-            success: true,
-            format,
-            author: "@creator.instagram",
-            caption: cobaltData.filename || "Extracted Instagram Media",
-            likes: "N/A",
-            views: "N/A",
-            thumbnail: isImage ? cobaltData.url : "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80",
-            downloadUrl: cobaltData.url,
-            mediaType: isImage ? "image" : "video",
-            message: `Instagram ${isImage ? "photo" : "video"} extracted successfully in real-time!`,
-          });
+    for (const cobaltUrl of cobaltInstances) {
+      try {
+        const cobaltRes = await fetch(cobaltUrl, {
+          method: "POST",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+          },
+          body: JSON.stringify({
+            url: url,
+            downloadMode: isImage ? "mute" : "auto", // mute means video only, auto is regular download
+            videoQuality: "1080"
+          })
+        });
+
+        if (cobaltRes.ok) {
+          const cobaltData = await cobaltRes.json();
+          if (cobaltData && cobaltData.url) {
+            return res.status(200).json({
+              success: true,
+              format,
+              author: "@creator.instagram",
+              caption: cobaltData.filename || "Extracted Instagram Media",
+              likes: "N/A",
+              views: "N/A",
+              thumbnail: isImage ? cobaltData.url : "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80",
+              downloadUrl: cobaltData.url,
+              mediaType: isImage ? "image" : "video",
+              message: `Instagram ${isImage ? "photo" : "video"} extracted successfully in real-time!`,
+            });
+          }
         }
+      } catch (err: any) {
+        console.warn(`Cobalt extraction failed on ${cobaltUrl}:`, err.message);
       }
-    } catch (err: any) {
-      console.warn("Cobalt API extraction failed, falling back to mock: ", err.message);
     }
 
     // Graceful fallback to mock data
