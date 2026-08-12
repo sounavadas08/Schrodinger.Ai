@@ -283,22 +283,13 @@ export const ContentCreatorAgent: React.FC = () => {
                           </select>
                         </td>
                         <td className="p-3.5 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button
-                              onClick={() => handleWriteScript(row)}
-                              className="p-1.5 border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors cursor-pointer"
-                              title="Write Script for Topic"
-                            >
-                              <PenLine className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => deleteRow(row.id)}
-                              className="p-1.5 border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors cursor-pointer"
-                              title="Delete Row"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
+                          <button
+                            onClick={() => deleteRow(row.id)}
+                            className="p-1.5 border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors cursor-pointer"
+                            title="Delete Row"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </td>
                       </tr>
                     ))}
