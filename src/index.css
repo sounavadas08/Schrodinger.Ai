@@ -2,15 +2,15 @@
 
 @layer base {
   :root {
-    --bg-editorial: #000000;
-    --text-editorial: #FFFFFF;
-    --card-editorial: #121212;
-    --dark-editorial: #FFFFFF;
+    --bg-editorial: #FFFFFF;
+    --text-editorial: #121212;
+    --card-editorial: #F7F5F2;
+    --dark-editorial: #121212;
   }
 
   html {
     scroll-behavior: smooth;
-    color-scheme: dark;
+    color-scheme: light;
     background-color: var(--bg-editorial);
     color: var(--text-editorial);
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -39,69 +39,69 @@
     background: var(--bg-editorial);
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(18, 18, 18, 0.2);
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(18, 18, 18, 0.5);
   }
 }
 
-/* Global Monochrome Overrides */
+/* Global Light Monochrome Overrides */
 .bg-\[\#F7F5F2\] {
-  background-color: #000000 !important;
+  background-color: #FFFFFF !important;
 }
 
 .text-\[\#121212\] {
-  color: #FFFFFF !important;
+  color: #121212 !important;
 }
 
 .bg-white {
-  background-color: #121212 !important;
+  background-color: #F7F5F2 !important;
 }
 
-/* Make primary buttons pop as white with black text */
+/* Make primary buttons pop as black with white text */
 .bg-\[\#121212\] {
-  background-color: #FFFFFF !important;
-  color: #000000 !important;
-}
-.bg-\[\#121212\] * {
-  color: #000000 !important;
-}
-.bg-\[\#121212\]:hover {
-  background-color: #E5E5E5 !important;
-}
-
-/* Make outline buttons pop as white borders and text */
-.border-\[\#121212\]\/30 {
-  border-color: rgba(255, 255, 255, 0.3) !important;
+  background-color: #121212 !important;
   color: #FFFFFF !important;
 }
+.bg-\[\#121212\] * {
+  color: #FFFFFF !important;
+}
+.bg-\[\#121212\]:hover {
+  background-color: #262626 !important;
+}
+
+/* Make outline buttons pop as black borders and text */
+.border-\[\#121212\]\/30 {
+  border-color: rgba(18, 18, 18, 0.3) !important;
+  color: #121212 !important;
+}
 .border-\[\#121212\]\/30:hover {
-  border-color: #FFFFFF !important;
-  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: #121212 !important;
+  background-color: rgba(18, 18, 18, 0.05) !important;
 }
 
 /* Borders */
 .border-\[\#121212\]\/15, .border-\[\#121212\]\/20, .border-\[\#121212\]\/10, .border-b {
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(18, 18, 18, 0.1) !important;
 }
 
 /* Text opacity overrides */
 .text-\[\#121212\]\/70, .text-\[\#121212\]\/60, .text-\[\#121212\]\/80 {
-  color: rgba(255, 255, 255, 0.75) !important;
+  color: rgba(18, 18, 18, 0.75) !important;
 }
 
 /* Header border scroll color */
 header.fixed {
-  background-color: rgba(0, 0, 0, 0.95) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 1px solid rgba(18, 18, 18, 0.1) !important;
 }
 
 /* Editorial Aesthetic Utilities */
 .glass-card, .editorial-card {
-  background-color: #121212;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  background-color: #F7F5F2;
+  border: 1px solid rgba(18, 18, 18, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .editorial-card-hover {
@@ -109,14 +109,14 @@ header.fixed {
 }
 
 .editorial-card-hover:hover {
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+  border-color: rgba(18, 18, 18, 0.3);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
 }
 
 .dark-editorial-card {
-  background-color: #121212;
-  color: #FFFFFF;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #F7F5F2;
+  color: #121212;
+  border: 1px solid rgba(18, 18, 18, 0.1);
 }
 
 /* Editorial Tag / Badge */
@@ -125,8 +125,8 @@ header.fixed {
   align-items: center;
   gap: 0.375rem;
   padding: 0.25rem 0.625rem;
-  background-color: #FFFFFF;
-  color: #000000;
+  background-color: #121212;
+  color: #FFFFFF;
   font-size: 0.625rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -139,8 +139,8 @@ header.fixed {
   gap: 0.375rem;
   padding: 0.25rem 0.625rem;
   background-color: transparent;
-  color: #FFFFFF;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #121212;
+  border: 1px solid rgba(18, 18, 18, 0.3);
   font-size: 0.625rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -155,18 +155,18 @@ header.fixed {
   font-size: 11px;
   font-weight: 500;
   text-transform: uppercase;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: #FFFFFF !important;
+  border: 1px solid rgba(18, 18, 18, 0.2) !important;
+  color: #121212 !important;
   background-color: transparent !important;
 }
 .status-approved {
-  background-color: #FFFFFF !important;
-  color: #000000 !important;
-  border-color: #FFFFFF !important;
+  background-color: #121212 !important;
+  color: #FFFFFF !important;
+  border-color: #121212 !important;
 }
 .status-scheduled {
-  border-color: rgba(255, 255, 255, 0.5) !important;
-  color: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(18, 18, 18, 0.5) !important;
+  color: rgba(18, 18, 18, 0.8) !important;
 }
 
 /* Italic Serif Text Styling */
@@ -177,19 +177,19 @@ header.fixed {
 
 /* Text Gradients replacement for editorial style */
 .text-gradient {
-  color: #FFFFFF;
+  color: #121212;
   font-family: 'Playfair Display', Georgia, serif;
   font-style: italic;
 }
 
 .text-gradient-cyan {
-  color: #FFFFFF;
+  color: #121212;
 }
 
 /* Editorial Rule */
 .editorial-rule {
   height: 1px;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(18, 18, 18, 0.1);
 }
 
 /* Hide scrollbar utility (used in ToolsGallery tab bar) */
