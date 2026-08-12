@@ -97,7 +97,7 @@ export const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4 }}
-          className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto"
+          className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto"
         >
           <div className="bg-white p-6 border border-[#121212]/10 flex flex-col items-center justify-center text-center shadow-xs">
             <Gauge className="w-5 h-5 text-[#121212]/60 mb-2" />
@@ -115,12 +115,6 @@ export const Hero: React.FC = () => {
             <Zap className="w-5 h-5 text-[#121212]/60 mb-2" />
             <span className="text-3xl font-serif font-bold text-[#121212]">100%</span>
             <span className="text-[10px] uppercase tracking-widest text-[#121212]/60 font-bold mt-1">Autonomous Agent</span>
-          </div>
-
-          <div className="bg-[#121212] text-[#F7F5F2] dark:bg-[#F7F5F2] dark:text-[#121212] dark:border-[#F7F5F2] p-6 border border-[#121212] flex flex-col items-center justify-center text-center shadow-xs">
-            <Cpu className="w-5 h-5 text-[#F7F5F2]/80 dark:text-[#121212]/80 mb-2" />
-            <span className="text-3xl font-serif font-bold text-[#F7F5F2] dark:text-[#121212]">Dual AI</span>
-            <span className="text-[10px] uppercase tracking-widest text-[#F7F5F2]/60 dark:text-[#121212]/60 font-bold mt-1">Gemini & Cloudflare</span>
           </div>
         </motion.div>
       </div>
