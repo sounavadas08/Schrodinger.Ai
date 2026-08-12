@@ -184,13 +184,13 @@ export async function checkIpLimit(req: any): Promise<{ allowed: boolean; error?
         .from("ip_usage")
         .select("count")
         .eq("ip", ip)
-        .single();
+        .maybeSingle(); // maybeSingle returns null instead of throwing 406 on no rows
       
-      let currentCount = 0;
-      if (data && !error) {
-        currentCount = data.count;
+      if (error) {
+        throw new Error(error.message);
       }
       
+      let currentCount = data ? data.count : 0;
       if (currentCount >= 3) {
         return { 
           allowed: false, 
@@ -199,11 +199,15 @@ export async function checkIpLimit(req: any): Promise<{ allowed: boolean; error?
       }
 
       // Increment count in Supabase
-      await supabaseClient.from("ip_usage").upsert({
+      const { error: upsertError } = await supabaseClient.from("ip_usage").upsert({
         ip,
         count: currentCount + 1,
         last_request: new Date().toISOString()
       });
+
+      if (upsertError) {
+        throw new Error(upsertError.message);
+      }
       return { allowed: true };
     } catch (e: any) {
       console.warn("Supabase IP limit check failed, falling back to memory:", e.message);

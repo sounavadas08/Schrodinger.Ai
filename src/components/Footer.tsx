@@ -1,5 +1,5 @@
 import React from 'react';
-import { Globe, Instagram, Heart } from 'lucide-react';
+import { Globe, Instagram, Heart, Shield, FileText } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
@@ -73,6 +73,28 @@ export const Footer: React.FC = () => {
               </li>
             </ul>
           </div>
+        </div>
+
+        {/* Legal Links */}
+        <div className="flex flex-wrap items-center justify-center gap-6 pt-4 border-t border-[#F7F5F2]/10">
+          <a
+            href="/privacy.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#F7F5F2]/5 border border-[#F7F5F2]/15 hover:bg-[#F7F5F2]/10 hover:border-[#F7F5F2]/30 transition-all text-[#F7F5F2]/80 hover:text-[#F7F5F2] font-mono text-[11px] uppercase tracking-wider"
+          >
+            <Shield className="w-3.5 h-3.5" />
+            Privacy Policy
+          </a>
+          <a
+            href="/terms.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#F7F5F2]/5 border border-[#F7F5F2]/15 hover:bg-[#F7F5F2]/10 hover:border-[#F7F5F2]/30 transition-all text-[#F7F5F2]/80 hover:text-[#F7F5F2] font-mono text-[11px] uppercase tracking-wider"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            Terms of Service
+          </a>
         </div>
 
         {/* Bottom Bar & Credit Line */}

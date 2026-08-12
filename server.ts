@@ -1,15 +1,20 @@
 import express from "express";
 import path from "path";
+import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json({ limit: '10mb' }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Helper: Get Gemini API client if key present
 const getGenAIClient = async (req?: express.Request) => {
@@ -158,6 +163,8 @@ async function checkIpLimit(req: express.Request): Promise<{ allowed: boolean; e
   const rawIp = typeof forwarded === "string" ? forwarded.split(",")[0] : (req.headers["x-real-ip"] || req.ip || "unknown");
   const ip = (Array.isArray(rawIp) ? rawIp[0] : String(rawIp)).trim();
 
+  console.log(`[checkIpLimit] userId=${userId}, isGuest=${isGuest}, rawIp=${rawIp}, ip=${ip}, ipCounts=${JSON.stringify(ipCounts)}`);
+
   if (ip === "unknown") {
     return { allowed: true }; // allow if IP cannot be resolved
   }
@@ -170,13 +177,13 @@ async function checkIpLimit(req: express.Request): Promise<{ allowed: boolean; e
         .from("ip_usage")
         .select("count")
         .eq("ip", ip)
-        .single();
+        .maybeSingle(); // maybeSingle returns null instead of throwing 406 on no rows
       
-      let currentCount = 0;
-      if (data && !error) {
-        currentCount = data.count;
+      if (error) {
+        throw new Error(error.message);
       }
       
+      let currentCount = data ? data.count : 0;
       if (currentCount >= 3) {
         return { 
           allowed: false, 
@@ -185,11 +192,15 @@ async function checkIpLimit(req: express.Request): Promise<{ allowed: boolean; e
       }
 
       // Increment count in Supabase
-      await supabaseClient.from("ip_usage").upsert({
+      const { error: upsertError } = await supabaseClient.from("ip_usage").upsert({
         ip,
         count: currentCount + 1,
         last_request: new Date().toISOString()
       });
+
+      if (upsertError) {
+        throw new Error(upsertError.message);
+      }
       return { allowed: true };
     } catch (e: any) {
       console.warn("Supabase IP limit check failed in server.ts, falling back to memory:", e.message);
