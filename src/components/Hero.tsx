@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, Play, Cpu, Gauge, Zap, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Play, Cpu, Gauge, Zap } from 'lucide-react';
 
 export const Hero: React.FC = () => {
   const scrollToSection = (id: string) => {
@@ -117,10 +117,10 @@ export const Hero: React.FC = () => {
             <span className="text-[10px] uppercase tracking-widest text-[#121212]/60 font-bold mt-1">Autonomous Agent</span>
           </div>
 
-          <div className="bg-[#121212] text-[#F7F5F2] p-6 border border-[#121212] flex flex-col items-center justify-center text-center shadow-xs">
-            <CheckCircle2 className="w-5 h-5 text-[#F7F5F2]/80 mb-2" />
-            <span className="text-3xl font-serif font-bold text-[#F7F5F2]">n8n Ready</span>
-            <span className="text-[10px] uppercase tracking-widest text-[#F7F5F2]/60 font-bold mt-1">Webhook Pipeline</span>
+          <div className="bg-[#121212] text-[#F7F5F2] dark:bg-[#F7F5F2] dark:text-[#121212] dark:border-[#F7F5F2] p-6 border border-[#121212] flex flex-col items-center justify-center text-center shadow-xs">
+            <Cpu className="w-5 h-5 text-[#F7F5F2]/80 dark:text-[#121212]/80 mb-2" />
+            <span className="text-3xl font-serif font-bold text-[#F7F5F2] dark:text-[#121212]">Dual AI</span>
+            <span className="text-[10px] uppercase tracking-widest text-[#F7F5F2]/60 dark:text-[#121212]/60 font-bold mt-1">Gemini & Cloudflare</span>
           </div>
         </motion.div>
       </div>

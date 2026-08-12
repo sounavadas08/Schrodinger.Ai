@@ -62,11 +62,6 @@ export const Footer: React.FC = () => {
                 </a>
               </li>
               <li>
-                <a href="#automation" className="hover:text-[#F7F5F2] transition-colors">
-                  n8n Workflows
-                </a>
-              </li>
-              <li>
                 <a href="#why-ai" className="hover:text-[#F7F5F2] transition-colors">
                   Why AI
                 </a>

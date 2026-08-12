@@ -8,18 +8,27 @@
     --dark-editorial: #121212;
   }
 
+  .dark {
+    --bg-editorial: #121212;
+    --text-editorial: #F7F5F2;
+    --card-editorial: #191919;
+    --dark-editorial: #F7F5F2;
+  }
+
   html {
     scroll-behavior: smooth;
-    color-scheme: light;
-    background-color: #F7F5F2;
-    color: #121212;
+    color-scheme: light dark;
+    background-color: var(--bg-editorial);
+    color: var(--text-editorial);
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   body {
     overflow-x: hidden;
-    background-color: #F7F5F2;
-    color: #121212;
+    background-color: var(--bg-editorial);
+    color: var(--text-editorial);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   h1, h2, h3, .font-editorial-serif {
@@ -36,21 +45,30 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #F7F5F2;
+    background: var(--bg-editorial);
   }
   ::-webkit-scrollbar-thumb {
     background: rgba(18, 18, 18, 0.2);
   }
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgba(247, 245, 242, 0.2);
+  }
   ::-webkit-scrollbar-thumb:hover {
     background: rgba(18, 18, 18, 0.5);
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(247, 245, 242, 0.5);
   }
 }
 
 /* Editorial Aesthetic Utilities */
 .glass-card, .editorial-card {
-  background-color: #FFFFFF;
+  background-color: var(--card-editorial);
   border: 1px solid rgba(18, 18, 18, 0.12);
   box-shadow: 0 1px 3px rgba(18, 18, 18, 0.03);
+}
+.dark .glass-card, .dark .editorial-card {
+  border-color: rgba(247, 245, 242, 0.12);
 }
 
 .editorial-card-hover {
@@ -59,6 +77,9 @@
 
 .editorial-card-hover:hover {
   border-color: rgba(18, 18, 18, 0.4);
+  .dark &:hover {
+    border-color: rgba(247, 245, 242, 0.4);
+  }
   box-shadow: 0 4px 16px rgba(18, 18, 18, 0.06);
 }
 
