@@ -25,6 +25,47 @@ export const AIRoutineMakerTool: React.FC = () => {
   const [scriptError, setScriptError] = useState<string | null>(null);
   const [scriptCopied, setScriptCopied] = useState(false);
 
+  React.useEffect(() => {
+    const handleTrigger = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && customEvent.detail.topic) {
+        setTab('script');
+        setTopic(customEvent.detail.topic);
+        const resolvedGenre = customEvent.detail.genre || 'YouTube Explainer';
+        setGenre(resolvedGenre);
+        
+        // Execute generation with delay
+        setTimeout(() => {
+          triggerScriptDirectly(customEvent.detail.topic, resolvedGenre);
+        }, 100);
+      }
+    };
+    window.addEventListener('trigger-script-gen', handleTrigger);
+    return () => window.removeEventListener('trigger-script-gen', handleTrigger);
+  }, [tone]);
+
+  const triggerScriptDirectly = async (targetTopic: string, targetGenre: string) => {
+    setScriptLoading(true);
+    setScriptError(null);
+    try {
+      const response = await fetch('/api/generate-script', {
+        method: 'POST',
+        headers: getApiHeaders(),
+        body: JSON.stringify({ genre: targetGenre, topic: targetTopic, tone })
+      });
+      const data = await safeResponseJson(response);
+      if (data.success) {
+        setScript(data.script);
+      } else {
+        setScriptError(data.error || 'Failed to generate script');
+      }
+    } catch (err: any) {
+      setScriptError(err.message || 'Error generating script');
+    } finally {
+      setScriptLoading(false);
+    }
+  };
+
   const handleGenerateRoutine = async () => {
     setRoutineLoading(true);
     setRoutineError(null);
@@ -61,25 +102,7 @@ export const AIRoutineMakerTool: React.FC = () => {
       setScriptError('Please enter a content topic.');
       return;
     }
-    setScriptLoading(true);
-    setScriptError(null);
-    try {
-      const response = await fetch('/api/generate-script', {
-        method: 'POST',
-        headers: getApiHeaders(),
-        body: JSON.stringify({ genre, topic, tone })
-      });
-      const data = await safeResponseJson(response);
-      if (data.success) {
-        setScript(data.script);
-      } else {
-        setScriptError(data.error || 'Failed to generate script');
-      }
-    } catch (err: any) {
-      setScriptError(err.message || 'Error generating script');
-    } finally {
-      setScriptLoading(false);
-    }
+    await triggerScriptDirectly(topic, genre);
   };
 
   const copyScript = () => {

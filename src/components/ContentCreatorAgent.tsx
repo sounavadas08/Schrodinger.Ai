@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bot, Power, FileSpreadsheet, Sparkles, CheckCircle2, Trash2, RefreshCw, Image } from 'lucide-react';
+import { Bot, Power, FileSpreadsheet, Sparkles, CheckCircle2, Trash2, RefreshCw, PenLine } from 'lucide-react';
 import { ContentRow } from '../types';
 import { getApiHeaders, safeResponseJson } from '../lib/apiHelper';
-import { ImageGeneratorTool } from './tools/ImageGeneratorTool';
+import { AIRoutineMakerTool } from './tools/AIRoutineMakerTool';
 
 export const ContentCreatorAgent: React.FC = () => {
   const [agentActive, setAgentActive] = useState<boolean>(() => {
@@ -105,12 +105,22 @@ export const ContentCreatorAgent: React.FC = () => {
     setRows(rows.map((r) => (r.id === id ? { ...r, status: newStatus } : r)));
   };
 
-  const handleGenerateVisual = (row: ContentRow) => {
-    const descriptivePrompt = `${row.theme}. Editorial design illustration, high contrast, clean composition.`;
-    window.dispatchEvent(new CustomEvent('trigger-image-gen', { 
-      detail: { prompt: descriptivePrompt } 
+  const handleWriteScript = (row: ContentRow) => {
+    // Map row platform to suitable genre
+    let genre = 'YouTube Explainer';
+    if (row.platform.toLowerCase().includes('instagram') || row.platform.toLowerCase().includes('reels')) {
+      genre = 'Instagram Reel';
+    } else if (row.platform.toLowerCase().includes('tiktok') || row.platform.toLowerCase().includes('short')) {
+      genre = 'TikTok Hook';
+    } else if (row.platform.toLowerCase().includes('twitter') || row.platform.toLowerCase().includes('x')) {
+      genre = 'Twitter Thread';
+    }
+    
+    window.dispatchEvent(new CustomEvent('trigger-script-gen', { 
+      detail: { topic: row.theme, genre } 
     }));
-    const el = document.getElementById('visual-studio-vault');
+    
+    const el = document.getElementById('routine-script-studio-vault');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
     }
@@ -275,11 +285,11 @@ export const ContentCreatorAgent: React.FC = () => {
                         <td className="p-3.5 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <button
-                              onClick={() => handleGenerateVisual(row)}
+                              onClick={() => handleWriteScript(row)}
                               className="p-1.5 border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors cursor-pointer"
-                              title="Generate Cover Visual"
+                              title="Write Script for Topic"
                             >
-                              <Image className="w-3.5 h-3.5" />
+                              <PenLine className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => deleteRow(row.id)}
@@ -296,9 +306,9 @@ export const ContentCreatorAgent: React.FC = () => {
                 </table>
               </div>
 
-              {/* Merged Visual Generator Section */}
-              <div id="visual-studio-vault" className="mt-12 pt-8 border-t border-[#121212]/10 scroll-mt-24">
-                <ImageGeneratorTool />
+              {/* Merged Routine & Script Studio Section */}
+              <div id="routine-script-studio-vault" className="mt-12 pt-8 border-t border-[#121212]/10 scroll-mt-24">
+                <AIRoutineMakerTool />
               </div>
             </motion.div>
           )}
