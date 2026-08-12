@@ -93,6 +93,29 @@ This file records all architectural decisions, configuration choices, user const
   - Since browser requests originate from standard residential user IP addresses (not datacenter IPs), they are not blocked by the Cobalt API and can successfully download the media.
   - Added a graceful fallback to the backend serverless endpoints `/api/youtube-to-mp3` and `/api/ig-download` (serving mock data) if the client-side fetches fail, ensuring seamless user experience.
 
+### Decision 15: Implement IP-Based Guest Rate Limiting
+- **Date:** 2026-08-12
+- **Context:** Free/guest users must be limited to 3 model usage requests from a single device to protect resource availability.
+- **Implementation:** 
+  - Added `checkIpLimit` to `api/helpers.ts` and `server.ts` to retrieve client IP from `x-forwarded-for`/`x-real-ip` headers.
+  - Implemented persistent database tracking inside Supabase (`ip_usage` table) with graceful automatic fallback to process memory if Supabase isn't configured.
+  - Intercepts requests on `/api/generate-image`, `/api/text-to-speech`, `/api/generate-routine`, `/api/generate-script`, and `/api/plan-content`, returning `429 Too Many Requests` when limit is exceeded.
+
+### Decision 16: Implement Password Brute-Force Lockout
+- **Date:** 2026-08-12
+- **Context:** Protect local email/password login from brute-force dictionary attacks.
+- **Implementation:** 
+  - Tracks consecutive password authentication failures per email address in `AuthContext.tsx`.
+  - Lockout attempts for 15 minutes if failure count reaches 3. Displays dynamic countdown timers to the user.
+
+### Decision 17: Establish API Key Cloud Sync and Restore
+- **Date:** 2026-08-12
+- **Context:** API keys saved in browser settings should persist across devices on user login.
+- **Implementation:** 
+  - Created a database table `user_settings` in Supabase to map user credentials.
+  - Automatically pushes configuration to Supabase inside `SettingsModal.tsx` when logged-in users save credentials.
+  - Automatically fetches and restores keys to browser storage on login or session load inside `AuthContext.tsx`.
+
 
 
 
