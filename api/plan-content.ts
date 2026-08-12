@@ -6,7 +6,7 @@ export default async function handler(req: any, res: any) {
     const provider = getProvider(req, bodyProvider);
 
     const cfConfig = getCloudflareConfig(req);
-    const aiGen = getGenAIClient(req);
+    const aiGen = await getGenAIClient(req);
 
     if ((provider === "cloudflare" || provider === "auto") && cfConfig) {
       try {

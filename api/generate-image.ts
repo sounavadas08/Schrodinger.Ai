@@ -9,6 +9,7 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: "Prompt is required" });
     }
 
+    const aiGen = await getGenAIClient(req);
     const cfConfig = getCloudflareConfig(req, "image");
 
     // Image generation is handled exclusively by Cloudflare Workers AI (SDXL).

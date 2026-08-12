@@ -1,4 +1,13 @@
-import { GoogleGenAI, Type } from "@google/genai";
+export const Type = {
+  STRING: "STRING",
+  NUMBER: "NUMBER",
+  INTEGER: "INTEGER",
+  BOOLEAN: "BOOLEAN",
+  ARRAY: "ARRAY",
+  OBJECT: "OBJECT",
+  NULL: "NULL",
+  UNSPECIFIED: "UNSPECIFIED",
+} as const;
 
 // Minimal request shape so the same helpers work for both the Express server
 // (server.ts) and Vercel serverless functions (api/*.ts).
@@ -7,8 +16,24 @@ export interface ReqLike {
   query?: Record<string, any>;
 }
 
+let cachedGenAIModule: typeof import("@google/genai") | null = null;
+let genAILoadError: string | null = null;
+
+async function loadGenAIModule(): Promise<typeof import("@google/genai") | null> {
+  if (cachedGenAIModule) return cachedGenAIModule;
+  if (genAILoadError) return null;
+  try {
+    cachedGenAIModule = await import("@google/genai");
+    return cachedGenAIModule;
+  } catch (err: any) {
+    genAILoadError = err?.message || "unknown";
+    console.warn("Failed to load @google/genai:", genAILoadError);
+    return null;
+  }
+}
+
 // Helper: Get Gemini API client if key present
-export const getGenAIClient = (req?: ReqLike) => {
+export async function getGenAIClient(req?: ReqLike) {
   const headerKey = (typeof req?.headers?.["x-gemini-api-key"] === "string") ? req.headers["x-gemini-api-key"] as string : "";
   const envKey = process.env.GEMINI_API_KEY;
   const apiKey = (headerKey && headerKey.trim() !== "") ? headerKey : envKey;
@@ -16,7 +41,11 @@ export const getGenAIClient = (req?: ReqLike) => {
   if (!apiKey || apiKey === "MY_GEMINI_API_KEY") {
     return null;
   }
-  return new GoogleGenAI({
+
+  const mod = await loadGenAIModule();
+  if (!mod) return null;
+
+  return new mod.GoogleGenAI({
     apiKey: apiKey,
     httpOptions: {
       headers: {
@@ -24,7 +53,7 @@ export const getGenAIClient = (req?: ReqLike) => {
       },
     },
   });
-};
+}
 
 // Helper: Get Cloudflare Workers AI credentials
 // `feature` lets a section use its own token (CLOUDFLARE_IMAGE_TOKEN / CLOUDFLARE_TTS_TOKEN)
@@ -109,5 +138,3 @@ export function extractJson(text: string): any | null {
   }
   return null;
 }
-
-export { Type };

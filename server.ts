@@ -12,7 +12,7 @@ const PORT = Number(process.env.PORT) || 3000;
 app.use(express.json({ limit: '10mb' }));
 
 // Helper: Get Gemini API client if key present
-const getGenAIClient = (req?: express.Request) => {
+const getGenAIClient = async (req?: express.Request) => {
   const headerKey = req?.headers['x-gemini-api-key'] as string;
   const envKey = process.env.GEMINI_API_KEY;
   const apiKey = (headerKey && headerKey.trim() !== '') ? headerKey : envKey;
@@ -20,14 +20,21 @@ const getGenAIClient = (req?: express.Request) => {
   if (!apiKey || apiKey === "MY_GEMINI_API_KEY") {
     return null;
   }
-  return new GoogleGenAI({
-    apiKey: apiKey,
-    httpOptions: {
-      headers: {
-        'User-Agent': 'schrodinger-ai-build',
+
+  try {
+    const { GoogleGenAI } = await import("@google/genai");
+    return new GoogleGenAI({
+      apiKey: apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'schrodinger-ai-build',
+        }
       }
-    }
-  });
+    });
+  } catch (err: any) {
+    console.warn("Failed to load @google/genai:", err?.message);
+    return null;
+  }
 };
 
 // Helper: Get Cloudflare Workers AI credentials
@@ -119,9 +126,9 @@ function extractJson(text: string): any | null {
 }
 
 // System Status / Config Endpoint
-app.get("/api/config", (req, res) => {
+app.get("/api/config", async (req, res) => {
   const cf = getCloudflareConfig(req);
-  const gemini = getGenAIClient(req);
+  const gemini = await getGenAIClient(req);
   // Supabase is a client-side SDK; the browser reports its own config via header.
   const supabaseConfiguredHeader = req.headers['x-supabase-configured'];
   const supabaseConfigured = supabaseConfiguredHeader === 'true' || supabaseConfiguredHeader === '1';
@@ -199,7 +206,7 @@ app.post("/api/generate-routine", async (req, res) => {
     const provider = getProvider(req, bodyProvider);
 
     const cfConfig = getCloudflareConfig(req);
-    const aiGen = getGenAIClient(req);
+    const aiGen = await getGenAIClient(req);
 
     const lifestyleClause = lifestyle && lifestyle.trim()
       ? ` The creator described their lifestyle as: "${lifestyle.trim()}". Tailor the routine realistically to this lifestyle, energy levels, and constraints — do not invent commitments they didn't mention.`
@@ -346,7 +353,7 @@ app.post("/api/generate-script", async (req, res) => {
     }
     const provider = getProvider(req, bodyProvider);
     const cfConfig = getCloudflareConfig(req);
-    const aiGen = getGenAIClient(req);
+    const aiGen = await getGenAIClient(req);
 
     const buildScript = (body: string) =>
       `Write a complete, production-ready ${genre} script about "${topic.trim()}". ` +
@@ -431,7 +438,7 @@ app.post("/api/plan-content", async (req, res) => {
     const provider = getProvider(req, bodyProvider);
 
     const cfConfig = getCloudflareConfig(req);
-    const aiGen = getGenAIClient(req);
+    const aiGen = await getGenAIClient(req);
 
     if ((provider === "cloudflare" || provider === "auto") && cfConfig) {
       try {

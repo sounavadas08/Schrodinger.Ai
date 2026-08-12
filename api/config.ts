@@ -2,7 +2,7 @@ import { getGenAIClient, getCloudflareConfig } from "./_lib/helpers";
 
 export default async function handler(req: any, res: any) {
   const cf = getCloudflareConfig(req);
-  const gemini = getGenAIClient(req);
+  const gemini = await getGenAIClient(req);
   const supabaseConfiguredHeader = req.headers?.["x-supabase-configured"];
   const supabaseConfigured = supabaseConfiguredHeader === "true" || supabaseConfiguredHeader === "1";
   res.status(200).json({

@@ -7,8 +7,8 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: "A content topic is required" });
     }
     const provider = getProvider(req, bodyProvider);
+    const aiGen = await getGenAIClient(req);
     const cfConfig = getCloudflareConfig(req);
-    const aiGen = getGenAIClient(req);
 
     const buildScript = (body: string) =>
       `Write a complete, production-ready ${genre} script about "${topic.trim()}". ` +

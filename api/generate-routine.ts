@@ -5,8 +5,8 @@ export default async function handler(req: any, res: any) {
     const { niche = "Tech Content Creator", frequency = "Daily", hoursPerDay = "4", lifestyle = "", provider: bodyProvider = "auto" } = req.body || {};
     const provider = getProvider(req, bodyProvider);
 
+    const aiGen = await getGenAIClient(req);
     const cfConfig = getCloudflareConfig(req);
-    const aiGen = getGenAIClient(req);
 
     const lifestyleClause = lifestyle && lifestyle.trim()
       ? ` The creator described their lifestyle as: "${lifestyle.trim()}". Tailor the routine realistically to this lifestyle, energy levels, and constraints — do not invent commitments they didn't mention.`
