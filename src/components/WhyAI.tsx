@@ -26,17 +26,17 @@ export const WhyAI: React.FC = () => {
   ];
 
   return (
-    <section id="why-ai" className="py-20 bg-[#F7F5F2] border-t border-[#121212]/15 relative text-[#121212]">
+    <section id="why-ai" className="py-20 bg-[#F7F5F2] dark:bg-[#121212] border-t border-[#121212]/15 dark:border-[#F7F5F2]/10 relative text-[#121212] dark:text-[#F7F5F2] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Section Title */}
         <div className="text-center space-y-3 max-w-3xl mx-auto">
-          <span className="text-xs font-mono uppercase tracking-[0.2em] font-bold text-[#121212]/60">
+          <span className="text-xs font-mono uppercase tracking-[0.2em] font-bold text-[#121212]/60 dark:text-[#F7F5F2]/60">
             [ 05 / THE CREATOR ADVANTAGE ]
           </span>
-          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#121212]">
+          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#121212] dark:text-[#F7F5F2]">
             Why Automate With SchrodingerAi
           </h2>
-          <p className="text-[#121212]/70 text-base font-serif italic">
+          <p className="text-[#121212]/70 dark:text-[#F7F5F2]/70 text-base font-serif italic">
             Engineered to remove manual friction so you can focus on high-impact strategy and brand growth.
           </p>
         </div>
@@ -48,15 +48,15 @@ export const WhyAI: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="bg-white p-6 border border-[#121212]/15 hover:border-[#121212] transition-colors space-y-4 text-left shadow-xs"
+                className="bg-white dark:bg-[#191919] p-6 border border-[#121212]/15 dark:border-[#F7F5F2]/10 hover:border-[#121212] dark:hover:border-[#F7F5F2] transition-all duration-300 space-y-4 text-left shadow-xs"
               >
-                <div className="w-12 h-12 bg-[#121212] text-[#F7F5F2] flex items-center justify-center">
+                <div className="w-12 h-12 bg-[#121212] dark:bg-[#F7F5F2] text-[#F7F5F2] dark:text-[#121212] flex items-center justify-center transition-colors">
                   <Icon className="w-6 h-6" />
                 </div>
-                <h3 className="text-lg font-serif font-bold text-[#121212]">
+                <h3 className="text-lg font-serif font-bold text-[#121212] dark:text-[#F7F5F2]">
                   {b.title}
                 </h3>
-                <p className="text-xs text-[#121212]/70 leading-relaxed font-serif">
+                <p className="text-xs text-[#121212]/70 dark:text-[#F7F5F2]/70 leading-relaxed font-serif">
                   {b.description}
                 </p>
               </div>

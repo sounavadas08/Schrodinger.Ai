@@ -19,18 +19,18 @@ export const ToolsGallery: React.FC = () => {
   ];
 
   return (
-    <section id="tools" className="py-20 relative bg-[#F7F5F2] border-b border-[#121212]/10 text-[#121212]">
+    <section id="tools" className="py-20 relative bg-[#F7F5F2] dark:bg-[#121212] border-b border-[#121212]/10 dark:border-[#F7F5F2]/10 text-[#121212] dark:text-[#F7F5F2] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         {/* Section Header */}
         <div className="text-center space-y-3 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#121212] text-[#F7F5F2] text-[10px] uppercase tracking-[0.2em] font-bold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#121212] dark:bg-[#F7F5F2] text-[#F7F5F2] dark:text-[#121212] text-[10px] uppercase tracking-[0.2em] font-bold transition-colors">
             <span>INTERACTIVE AI STUDIO SUITE</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-serif tracking-tight text-[#121212]">
+          <h2 className="text-3xl sm:text-5xl font-serif tracking-tight text-[#121212] dark:text-[#F7F5F2]">
             Five Essential Tools.{' '}
             <span className="italic font-normal">Zero Friction.</span>
           </h2>
-          <p className="text-[#121212]/70 text-sm font-serif italic max-w-xl mx-auto">
+          <p className="text-[#121212]/70 dark:text-[#F7F5F2]/70 text-sm font-serif italic max-w-xl mx-auto">
             Select a studio utility below to generate media, process content, or optimize your creation workflow.
           </p>
         </div>
@@ -46,15 +46,15 @@ export const ToolsGallery: React.FC = () => {
                 onClick={() => setActiveTab(tool.id)}
                 className={`flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all border cursor-pointer ${
                   isActive
-                    ? 'bg-[#121212] text-[#F7F5F2] border-[#121212] shadow-sm'
-                    : 'bg-white text-[#121212] hover:bg-[#121212]/5 border-[#121212]/15'
+                    ? 'bg-[#121212] text-[#F7F5F2] border-[#121212] dark:bg-[#F7F5F2] dark:text-[#121212] dark:border-[#F7F5F2] shadow-sm'
+                    : 'bg-white text-[#121212] border-[#121212]/15 dark:bg-[#191919] dark:text-[#F7F5F2] dark:border-[#F7F5F2]/10 hover:bg-[#121212]/5 dark:hover:bg-[#F7F5F2]/5'
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#F7F5F2]' : 'text-[#121212]/70'}`} />
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#F7F5F2] dark:text-[#121212]' : 'text-[#121212]/70'}`} />
                 <span>{tool.label}</span>
                 <span
                   className={`text-[9px] font-mono px-1.5 py-0.5 ${
-                    isActive ? 'bg-[#F7F5F2]/20 text-[#F7F5F2]' : 'bg-[#121212]/5 text-[#121212]/60'
+                    isActive ? 'bg-[#F7F5F2]/20 text-[#F7F5F2] dark:bg-[#121212]/20 dark:text-[#121212]' : 'bg-[#121212]/5 text-[#121212]/60 dark:bg-[#F7F5F2]/5 dark:text-[#F7F5F2]/60'
                   }`}
                 >
                   {tool.badge}
@@ -65,7 +65,7 @@ export const ToolsGallery: React.FC = () => {
         </div>
 
         {/* Active Tool Stage */}
-        <div className="bg-white border border-[#121212]/15 p-6 sm:p-8 relative min-h-[460px] shadow-xs">
+        <div className="bg-white dark:bg-[#191919] border border-[#121212]/15 dark:border-[#F7F5F2]/10 p-6 sm:p-8 relative min-h-[460px] shadow-xs transition-colors duration-300">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
