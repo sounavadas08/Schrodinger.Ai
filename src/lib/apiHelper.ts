@@ -26,3 +26,24 @@ export function getApiHeaders(): Record<string, string> {
 
   return headers;
 }
+
+/**
+ * Safely parse a fetch Response as JSON.
+ * If the server returns HTML or plain-text (e.g. an unhandled crash), this
+ * returns a structured error object instead of throwing "Unexpected token".
+ */
+export async function safeResponseJson(response: Response): Promise<any> {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    // Server returned non-JSON (HTML error page, plain-text crash message, etc.)
+    return {
+      success: false,
+      error: response.ok
+        ? 'Server returned an unexpected response. Please try again.'
+        : `Server error ${response.status}: ${text.slice(0, 120)}`,
+    };
+  }
+}
+

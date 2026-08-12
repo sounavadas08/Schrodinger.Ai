@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Bot, Power, FileSpreadsheet, Sparkles, CheckCircle2, Trash2, RefreshCw } from 'lucide-react';
 import { ContentRow } from '../types';
-import { getApiHeaders } from '../lib/apiHelper';
+import { getApiHeaders, safeResponseJson } from '../lib/apiHelper';
 
 export const ContentCreatorAgent: React.FC = () => {
   const [agentActive, setAgentActive] = useState<boolean>(() => {
@@ -77,7 +77,7 @@ export const ContentCreatorAgent: React.FC = () => {
         body: JSON.stringify({ niche: 'Tech & Creator Automation', platform: 'YouTube' })
       });
 
-      const data = await response.json();
+      const data = await safeResponseJson(response);
       if (data.success && Array.isArray(data.items)) {
         const newRows: ContentRow[] = data.items.map((item: any, i: number) => ({
           id: Date.now().toString() + i,

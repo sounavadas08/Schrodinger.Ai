@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Instagram, Download, Heart, Eye, RefreshCw, CheckCircle2 } from 'lucide-react';
-import { getApiHeaders } from '../../lib/apiHelper';
+import { getApiHeaders, safeResponseJson } from '../../lib/apiHelper';
 
 export const InstagramDownloaderTool: React.FC = () => {
   const [url, setUrl] = useState('https://www.instagram.com/reel/C_example123');
@@ -21,7 +21,7 @@ export const InstagramDownloaderTool: React.FC = () => {
         body: JSON.stringify({ url, format })
       });
 
-      const data = await response.json();
+      const data = await safeResponseJson(response);
       if (data.success) {
         setResult(data);
       } else {

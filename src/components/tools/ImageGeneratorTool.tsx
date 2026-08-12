@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Image, Download, Copy, Check, RefreshCw, ZoomIn, X, History, Star, Trash2, Search, ArrowUpRight, Sparkles, Filter } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { PromptHistoryItem } from '../../types';
-import { getApiHeaders } from '../../lib/apiHelper';
+import { getApiHeaders, safeResponseJson } from '../../lib/apiHelper';
 import {
   fetchPromptHistory,
   addPromptHistoryItem,
@@ -58,7 +58,7 @@ export const ImageGeneratorTool: React.FC = () => {
         body: JSON.stringify({ prompt: targetPrompt, aspectRatio })
       });
 
-      const data = await response.json();
+      const data = await safeResponseJson(response);
       if (data.success && data.imageUrl) {
         setResultImage(data.imageUrl);
 

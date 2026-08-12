@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Calendar, Copy, Check, RefreshCw, Clock, PenLine, Sparkles } from 'lucide-react';
 import { CreatorRoutine, GeneratedScript } from '../../types';
-import { getApiHeaders } from '../../lib/apiHelper';
+import { getApiHeaders, safeResponseJson } from '../../lib/apiHelper';
 
 export const AIRoutineMakerTool: React.FC = () => {
   const [tab, setTab] = useState<'routine' | 'script'>('routine');
@@ -34,7 +34,7 @@ export const AIRoutineMakerTool: React.FC = () => {
         headers: getApiHeaders(),
         body: JSON.stringify({ niche, frequency, hoursPerDay, lifestyle })
       });
-      const data = await response.json();
+      const data = await safeResponseJson(response);
       if (data.success) {
         setRoutine(data);
       } else {
@@ -69,7 +69,7 @@ export const AIRoutineMakerTool: React.FC = () => {
         headers: getApiHeaders(),
         body: JSON.stringify({ genre, topic, tone })
       });
-      const data = await response.json();
+      const data = await safeResponseJson(response);
       if (data.success) {
         setScript(data.script);
       } else {

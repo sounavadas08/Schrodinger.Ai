@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Youtube, Download, Music, CheckCircle2, RefreshCw } from 'lucide-react';
-import { getApiHeaders } from '../../lib/apiHelper';
+import { getApiHeaders, safeResponseJson } from '../../lib/apiHelper';
 
 export const YoutubeDownloaderTool: React.FC = () => {
   const [url, setUrl] = useState('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
@@ -21,7 +21,7 @@ export const YoutubeDownloaderTool: React.FC = () => {
         body: JSON.stringify({ url, bitrate })
       });
 
-      const data = await response.json();
+      const data = await safeResponseJson(response);
       if (data.success) {
         setResult(data);
       } else {

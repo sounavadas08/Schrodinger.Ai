@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, Play, Pause, Square, Download, Loader2, AlertCircle } from 'lucide-react';
-import { getApiHeaders } from '../../lib/apiHelper';
+import { getApiHeaders, safeResponseJson } from '../../lib/apiHelper';
 
 export const TextToSpeechTool: React.FC = () => {
   const [text, setText] = useState('Welcome to SchrodingerAi. Automate your creation, scale your workflow, and focus on high-impact editorial strategy.');
@@ -27,7 +27,7 @@ export const TextToSpeechTool: React.FC = () => {
         headers: getApiHeaders(),
         body: JSON.stringify({ text, lang: 'en' }),
       });
-      const data = await response.json();
+      const data = await safeResponseJson(response);
       if (data.success && data.audioUrl) {
         // Revoke previous object URL if we used one (we use data URLs, so safe to just replace)
         setAudioUrl(data.audioUrl);
