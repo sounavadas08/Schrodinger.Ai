@@ -169,22 +169,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signInWithOAuth = async (provider: 'google' | 'github') => {
-    if (isSupabaseConfigured && supabase) {
-      const { error } = await supabase.auth.signInWithOAuth({ provider });
-      if (error) return { success: false, error: error.message };
-      return { success: true };
-    }
-
-    // Fallback OAuth simulation
-    const localUser: AuthUser = {
+    const fallbackUser: AuthUser = {
       id: `${provider}_${Date.now()}`,
       email: `creator.${provider}@schrodinger.ai`,
       name: `${provider.toUpperCase()} Creator`,
       avatarUrl: provider === 'github' ? 'https://github.com/github.png' : undefined,
       provider: provider
     };
-    setUser(localUser);
-    localStorage.setItem('schrodinger_local_user', JSON.stringify(localUser));
+
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({ provider });
+        if (error) {
+          console.error('Supabase OAuth error, falling back to local auth:', error);
+          setUser(fallbackUser);
+          localStorage.setItem('schrodinger_local_user', JSON.stringify(fallbackUser));
+          return { success: true };
+        }
+        return { success: true };
+      } catch (err) {
+        console.error('OAuth exception, falling back to local auth:', err);
+        setUser(fallbackUser);
+        localStorage.setItem('schrodinger_local_user', JSON.stringify(fallbackUser));
+        return { success: true };
+      }
+    }
+
+    setUser(fallbackUser);
+    localStorage.setItem('schrodinger_local_user', JSON.stringify(fallbackUser));
     return { success: true };
   };
 

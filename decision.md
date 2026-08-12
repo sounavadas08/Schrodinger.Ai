@@ -64,3 +64,9 @@ This file records all architectural decisions, configuration choices, user const
 - **Date:** 2026-08-12
 - **Context:** Running `supabase link` failed because the CLI is not globally installed on the environment.
 - **Implementation:** Added the `supabase` package as a local `devDependency` in `package.json` to allow the user to execute local Supabase commands (e.g. `npx supabase link`) out of the box.
+
+### Decision 11: Ignore Supabase CLI Temp Files
+- **Date:** 2026-08-12
+- **Context:** Local execution of the Supabase CLI creates a `.temp/` directory with workspace-specific linking config that should not be tracked in git.
+- **Implementation:** Added `supabase/.temp/` to `.gitignore`.
+
