@@ -21,7 +21,7 @@ export const ContentCreatorAgent: React.FC = () => {
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (e) {}
+      } catch (e) { }
     }
     return [
       {
@@ -115,11 +115,11 @@ export const ContentCreatorAgent: React.FC = () => {
     } else if (row.platform.toLowerCase().includes('twitter') || row.platform.toLowerCase().includes('x')) {
       genre = 'Twitter Thread';
     }
-    
-    window.dispatchEvent(new CustomEvent('trigger-script-gen', { 
-      detail: { topic: row.theme, genre } 
+
+    window.dispatchEvent(new CustomEvent('trigger-script-gen', {
+      detail: { topic: row.theme, genre }
     }));
-    
+
     const el = document.getElementById('routine-script-studio-vault');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -156,17 +156,15 @@ export const ContentCreatorAgent: React.FC = () => {
 
             <button
               onClick={toggleAgent}
-              className={`w-16 h-8 p-0.5 border border-[#121212] transition-colors duration-200 flex items-center cursor-pointer ${
-                agentActive ? 'bg-[#121212]' : 'bg-[#F7F5F2]'
-              }`}
+              className={`w-16 h-8 p-0.5 border border-[#121212] transition-colors duration-200 flex items-center cursor-pointer ${agentActive ? 'bg-[#121212]' : 'bg-[#F7F5F2]'
+                }`}
               title="Toggle AI Agent"
             >
               <motion.div
                 layout
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                className={`w-6 h-6 bg-white border border-[#121212] flex items-center justify-center ${
-                  agentActive ? 'translate-x-8 text-[#121212]' : 'translate-x-0 text-[#121212]/60'
-                }`}
+                className={`w-6 h-6 bg-white border border-[#121212] flex items-center justify-center ${agentActive ? 'translate-x-8 text-[#121212]' : 'translate-x-0 text-[#121212]/60'
+                  }`}
               >
                 <Power className="w-3.5 h-3.5" />
               </motion.div>
@@ -229,11 +227,11 @@ export const ContentCreatorAgent: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => window.open('/export-sheets.html', '_blank')}
-                    className="flex items-center gap-2 px-3.5 py-2 text-xs font-mono border transition-colors cursor-pointer bg-emerald-50 border-emerald-600/30 text-emerald-800 hover:bg-emerald-100/50"
+                    className="flex items-center gap-2 px-3.5 py-2 text-xs font-mono border transition-colors cursor-pointer bg-white hover:bg-neutral-200 text-black border-transparent font-bold"
                   >
-                    <FileSpreadsheet className="w-4 h-4 text-emerald-700" />
+                    <FileSpreadsheet className="w-4 h-4 text-black" />
                     <span className="font-bold text-[10px] tracking-wider uppercase">Connect Sheets</span>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-black" />
                   </button>
 
                   <button
@@ -285,7 +283,7 @@ export const ContentCreatorAgent: React.FC = () => {
                         <td className="p-3.5 text-right">
                           <button
                             onClick={() => deleteRow(row.id)}
-                            className="p-1.5 border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors cursor-pointer"
+                            className="p-1.5 border border-neutral-800 bg-neutral-900 text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors cursor-pointer"
                             title="Delete Row"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
