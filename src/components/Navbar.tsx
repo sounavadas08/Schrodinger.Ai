@@ -13,11 +13,11 @@ export const Navbar: React.FC = () => {
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
 
-  const [theme, setTheme] = useState(() => {
+  const [theme] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') || 'light';
+      return localStorage.getItem('theme') || 'dark';
     }
-    return 'light';
+    return 'dark';
   });
 
   useEffect(() => {
@@ -29,10 +29,6 @@ export const Navbar: React.FC = () => {
     }
     localStorage.setItem('theme', theme);
   }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
-  };
 
   useEffect(() => {
     const handleScroll = () => {
