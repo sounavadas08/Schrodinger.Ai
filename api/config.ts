@@ -7,7 +7,7 @@ export default async function handler(req: any, res: any) {
     if (!cfConfig) {
       errorInfo = { error: "Cloudflare credentials not found" };
     } else {
-      const cfModel = "@cf/myshell-ai/melotts";
+      const cfModel = "@cf/deepgram/aura-2-en";
       const url = `https://api.cloudflare.com/client/v4/accounts/${cfConfig.accountId}/ai/run/${cfModel}`;
       const response = await fetch(url, {
         method: "POST",
