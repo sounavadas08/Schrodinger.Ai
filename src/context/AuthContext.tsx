@@ -209,8 +209,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // Local authentication fallback for direct testing (correct password is creator123)
-    const correctPass = "creator123";
+    // Local authentication fallback for direct testing
+    const localDb = JSON.parse(localStorage.getItem('schrodinger_local_users') || '{}');
+    const existingLocalUser = localDb[email.toLowerCase()];
+    const correctPass = existingLocalUser ? existingLocalUser.password : "creator123";
+
     if (pass !== correctPass) {
       const currentAttempts = (Number(localStorage.getItem(attemptsKey)) || 0) + 1;
       if (currentAttempts >= 3) {
@@ -228,9 +231,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem(blockKey);
 
     const localUser: AuthUser = {
-      id: `user_${Date.now()}`,
+      id: existingLocalUser?.id || `user_${Date.now()}`,
       email,
-      name: email.split('@')[0],
+      name: existingLocalUser?.name || email.split('@')[0],
       provider: 'email'
     };
     setUser(localUser);
@@ -262,10 +265,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (pass.length < 6) {
       return { success: false, error: 'Password must be at least 6 characters' };
     }
-    const localUser: AuthUser = {
+
+    // Store in local storage mock database
+    const localDb = JSON.parse(localStorage.getItem('schrodinger_local_users') || '{}');
+    const normalizedEmail = email.toLowerCase();
+    
+    localDb[normalizedEmail] = {
       id: `user_${Date.now()}`,
+      password: pass,
+      name: name || email.split('@')[0]
+    };
+    localStorage.setItem('schrodinger_local_users', JSON.stringify(localDb));
+
+    const localUser: AuthUser = {
+      id: localDb[normalizedEmail].id,
       email,
-      name: name || email.split('@')[0],
+      name: localDb[normalizedEmail].name,
       provider: 'email'
     };
     setUser(localUser);
