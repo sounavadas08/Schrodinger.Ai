@@ -1,4 +1,4 @@
-import { getGenAIClient, getCloudflareConfig } from "./_lib/helpers.ts";
+import { getGenAIClient, getCloudflareConfig } from "./_lib/helpers";
 
 export default async function handler(req: any, res: any) {
   const cf = getCloudflareConfig(req);

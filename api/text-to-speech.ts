@@ -1,4 +1,4 @@
-import { getCloudflareConfig } from "./_lib/helpers.ts";
+import { getCloudflareConfig } from "./_lib/helpers";
 
 export default async function handler(req: any, res: any) {
   try {

@@ -1,4 +1,4 @@
-import { getGenAIClient, getCloudflareConfig, getProvider, callCloudflareWorkersAI, extractJson, Type } from "./_lib/helpers.ts";
+import { getGenAIClient, getCloudflareConfig, getProvider, callCloudflareWorkersAI, extractJson, Type } from "./_lib/helpers";
 
 export default async function handler(req: any, res: any) {
   try {

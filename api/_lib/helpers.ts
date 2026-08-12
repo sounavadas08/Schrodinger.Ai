@@ -1,7 +1,4 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 // Minimal request shape so the same helpers work for both the Express server
 // (server.ts) and Vercel serverless functions (api/*.ts).
