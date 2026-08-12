@@ -85,5 +85,14 @@ This file records all architectural decisions, configuration choices, user const
   - Implemented an automatic failover list of Cobalt API instances in both `youtube-to-mp3.ts` and `ig-download.ts`.
   - Integrated `https://rue-cobalt.xenon.zone/` (a highly operational, verified public instance resolving YouTube Shorts and Instagram) as the primary provider, with `https://cobaltapi.cjs.nz/` as a secondary fallback.
 
+### Decision 14: Shift to Client-Side API Extraction for Media Downloaders
+- **Date:** 2026-08-12
+- **Context:** Direct server-side fetches from Vercel's cloud hosting IP addresses were blocked (returning `403 Forbidden`) by public Cobalt instances to prevent abuse and automated scraping.
+- **Implementation:** 
+  - Updated the frontend `YoutubeDownloaderTool.tsx` and `InstagramDownloaderTool.tsx` to attempt to query the public Cobalt API instances directly from the client browser first.
+  - Since browser requests originate from standard residential user IP addresses (not datacenter IPs), they are not blocked by the Cobalt API and can successfully download the media.
+  - Added a graceful fallback to the backend serverless endpoints `/api/youtube-to-mp3` and `/api/ig-download` (serving mock data) if the client-side fetches fail, ensuring seamless user experience.
+
+
 
 

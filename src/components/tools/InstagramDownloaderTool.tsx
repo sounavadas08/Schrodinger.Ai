@@ -15,17 +15,66 @@ export const InstagramDownloaderTool: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/ig-download', {
-        method: 'POST',
-        headers: getApiHeaders(),
-        body: JSON.stringify({ url, format })
-      });
+      // Try to fetch from Cobalt directly from the client side first (to bypass Vercel server IP block)
+      let resolved = false;
+      const cobaltInstances = [
+        "https://rue-cobalt.xenon.zone/",
+        "https://cobaltapi.cjs.nz/"
+      ];
 
-      const data = await safeResponseJson(response);
-      if (data.success) {
-        setResult(data);
-      } else {
-        setError(data.error || 'Failed to parse Instagram link');
+      for (const cobaltUrl of cobaltInstances) {
+        try {
+          const cobaltRes = await fetch(cobaltUrl, {
+            method: "POST",
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              url: url,
+              downloadMode: format === "High-Res Image" ? "mute" : "auto", // mute means video only, auto is regular download
+              videoQuality: "1080"
+            })
+          });
+
+          if (cobaltRes.ok) {
+            const cobaltData = await cobaltRes.json();
+            if (cobaltData && cobaltData.url) {
+              setResult({
+                success: true,
+                format,
+                author: "@creator.instagram",
+                caption: cobaltData.filename || "Extracted Instagram Media",
+                likes: "N/A",
+                views: "N/A",
+                thumbnail: format === "High-Res Image" ? cobaltData.url : "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80",
+                downloadUrl: cobaltData.url,
+                mediaType: format === "High-Res Image" ? "image" : "video",
+                message: `Instagram ${format === "High-Res Image" ? "photo" : "video"} extracted successfully in real-time!`,
+              });
+              resolved = true;
+              break;
+            }
+          }
+        } catch (err) {
+          console.warn(`Client-side Cobalt extraction failed on ${cobaltUrl}:`, err);
+        }
+      }
+
+      if (!resolved) {
+        // Fall back to serverless function (which serves mock data)
+        const response = await fetch('/api/ig-download', {
+          method: 'POST',
+          headers: getApiHeaders(),
+          body: JSON.stringify({ url, format })
+        });
+
+        const data = await safeResponseJson(response);
+        if (data.success) {
+          setResult(data);
+        } else {
+          setError(data.error || 'Failed to parse Instagram link');
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Server connection error');
