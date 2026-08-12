@@ -34,13 +34,29 @@ export const Hero: React.FC = () => {
           <span className="italic font-normal">Without the Grind.</span>
         </motion.h1>
 
-        {/* Divider Line */}
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="h-px bg-[#121212] w-24 mx-auto my-8"
-        />
+        {/* Divider Line with Quote */}
+        <div className="flex items-center justify-center gap-4 my-8">
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="h-px bg-[#121212]/20 w-16 origin-right"
+          />
+          <motion.span
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="text-[10px] font-mono uppercase tracking-[0.18em] font-bold text-[#121212]/60 italic whitespace-nowrap"
+          >
+            "made by Gen-Z devs for the Gen-Z creators"
+          </motion.span>
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="h-px bg-[#121212]/20 w-16 origin-left"
+          />
+        </div>
 
         {/* Subtitle */}
         <motion.p
