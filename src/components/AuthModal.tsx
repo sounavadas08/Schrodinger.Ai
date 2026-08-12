@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { X, Mail, Key, Shield, UserCheck, Sparkles, Check, ArrowRight, Github, Chrome, LogOut, Database } from 'lucide-react';
+import { X, Mail, Key, Shield, UserCheck, Sparkles, Check, ArrowRight, Github, LogOut, Database } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -173,17 +173,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             </div>
 
             {/* OAuth Quick Buttons */}
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => handleOAuth('google')}
-                className="py-2.5 px-3 bg-white border border-[#121212]/20 hover:border-[#121212] text-xs font-bold text-[#121212] flex items-center justify-center gap-2 transition-colors cursor-pointer"
-              >
-                <Chrome className="w-4 h-4" />
-                <span>Google Login</span>
-              </button>
+            <div>
               <button
                 onClick={() => handleOAuth('github')}
-                className="py-2.5 px-3 bg-white border border-[#121212]/20 hover:border-[#121212] text-xs font-bold text-[#121212] flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-full py-2.5 px-3 bg-white border border-[#121212]/20 hover:border-[#121212] text-xs font-bold text-[#121212] flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <Github className="w-4 h-4" />
                 <span>GitHub Login</span>

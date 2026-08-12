@@ -4,6 +4,11 @@ import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { Strategy as GitHubStrategy } from "passport-github2";
+import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -12,9 +17,137 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
+const APP_URL = process.env.APP_URL || `http://localhost:${PORT}`;
+const JWT_SECRET = process.env.SESSION_SECRET || 'schrodinger-ai-jwt-secret-change-in-production';
+const JWT_EXPIRY = '7d';
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
+
+// ─── Passport Setup (no sessions — JWT only) ───────────────────────────────
+app.use(passport.initialize());
+
+// Helper: sign a JWT for a user object
+function signUserToken(user: { id: string; email: string; name: string; avatarUrl?: string; provider: string }) {
+  return jwt.sign(user, JWT_SECRET, { expiresIn: JWT_EXPIRY });
+}
+
+// Helper: verify JWT from cookie and return user or null
+function getUserFromToken(req: express.Request): any | null {
+  const token = req.cookies?.schrodinger_token;
+  if (!token) return null;
+  try {
+    return jwt.verify(token, JWT_SECRET);
+  } catch {
+    return null;
+  }
+}
+
+// ─── Google OAuth2 Strategy ─────────────────────────────────────────────────
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: `${APP_URL}/auth/google/callback`,
+    scope: ['profile', 'email']
+  }, (_accessToken: string, _refreshToken: string, profile: any, done: any) => {
+    const user = {
+      id: `google_${profile.id}`,
+      email: profile.emails?.[0]?.value || '',
+      name: profile.displayName || '',
+      avatarUrl: profile.photos?.[0]?.value || '',
+      provider: 'google'
+    };
+    done(null, user);
+  }));
+  console.log('✓ Google OAuth strategy registered');
+} else {
+  console.warn('⚠ Google OAuth not configured — set GOOGLE_CLIENT_ID & GOOGLE_CLIENT_SECRET in .env');
+}
+
+// ─── GitHub OAuth2 Strategy ─────────────────────────────────────────────────
+if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+  passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: `${APP_URL}/auth/github/callback`,
+    scope: ['user:email']
+  }, (_accessToken: string, _refreshToken: string, profile: any, done: any) => {
+    const user = {
+      id: `github_${profile.id}`,
+      email: profile.emails?.[0]?.value || profile.username + '@github.com',
+      name: profile.displayName || profile.username || '',
+      avatarUrl: profile.photos?.[0]?.value || '',
+      provider: 'github'
+    };
+    done(null, user);
+  }));
+  console.log('✓ GitHub OAuth strategy registered');
+} else {
+  console.warn('⚠ GitHub OAuth not configured — set GITHUB_CLIENT_ID & GITHUB_CLIENT_SECRET in .env');
+}
+
+// ─── Auth Routes (JWT-based, stateless) ─────────────────────────────────────
+
+// Google login
+app.get('/auth/google', (req, res, next) => {
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    return res.status(503).json({ error: 'Google OAuth not configured on this server.' });
+  }
+  passport.authenticate('google', { session: false, scope: ['profile', 'email'] })(req, res, next);
+});
+
+app.get('/auth/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: '/?auth_error=google_failed' }),
+  (req, res) => {
+    const token = signUserToken(req.user as any);
+    res.cookie('schrodinger_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+    res.redirect('/?auth_success=google');
+  }
+);
+
+// GitHub login
+app.get('/auth/github', (req, res, next) => {
+  if (!process.env.GITHUB_CLIENT_ID) {
+    return res.status(503).json({ error: 'GitHub OAuth not configured on this server.' });
+  }
+  passport.authenticate('github', { session: false, scope: ['user:email'] })(req, res, next);
+});
+
+app.get('/auth/github/callback',
+  passport.authenticate('github', { session: false, failureRedirect: '/?auth_error=github_failed' }),
+  (req, res) => {
+    const token = signUserToken(req.user as any);
+    res.cookie('schrodinger_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+    res.redirect('/?auth_success=github');
+  }
+);
+
+// Get current user from JWT cookie
+app.get('/auth/me', (req, res) => {
+  const user = getUserFromToken(req);
+  if (user) {
+    return res.json({ authenticated: true, user: { id: user.id, email: user.email, name: user.name, avatarUrl: user.avatarUrl, provider: user.provider } });
+  }
+  return res.json({ authenticated: false, user: null });
+});
+
+// Logout — just clear the cookie
+app.post('/auth/logout', (_req, res) => {
+  res.clearCookie('schrodinger_token');
+  res.json({ success: true });
+});
 
 // Helper: Get Gemini API client if key present
 const getGenAIClient = async (req?: express.Request) => {

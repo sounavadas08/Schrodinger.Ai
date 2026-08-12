@@ -53,6 +53,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check initial local session or Supabase session
     const initAuth = async () => {
       try {
+        // 1. First check server-side Passport session
+        try {
+          const meRes = await fetch('/auth/me');
+          const meData = await meRes.json();
+          if (meData.authenticated && meData.user) {
+            setUser({
+              id: meData.user.id,
+              email: meData.user.email || '',
+              name: meData.user.name || meData.user.email?.split('@')[0],
+              avatarUrl: meData.user.avatarUrl,
+              provider: meData.user.provider || 'oauth'
+            });
+            await fetchAndRestoreUserSettings(meData.user.id);
+            setLoading(false);
+            return;
+          }
+        } catch {
+          // Server session check failed, continue to Supabase/local
+        }
+
+        // 2. Check for auth redirect query params (from Passport callback)
+        const urlParams = new URLSearchParams(window.location.search);
+        const authSuccess = urlParams.get('auth_success');
+        const authError = urlParams.get('auth_error');
+        if (authSuccess || authError) {
+          // Clean up URL
+          window.history.replaceState({}, '', window.location.pathname);
+          if (authSuccess) {
+            // Re-fetch /auth/me after redirect
+            try {
+              const meRes = await fetch('/auth/me');
+              const meData = await meRes.json();
+              if (meData.authenticated && meData.user) {
+                setUser({
+                  id: meData.user.id,
+                  email: meData.user.email || '',
+                  name: meData.user.name || meData.user.email?.split('@')[0],
+                  avatarUrl: meData.user.avatarUrl,
+                  provider: meData.user.provider || 'oauth'
+                });
+                await fetchAndRestoreUserSettings(meData.user.id);
+                setLoading(false);
+                return;
+              }
+            } catch { /* fallthrough */ }
+          }
+        }
+
+        // 3. Supabase session check
         if (isSupabaseConfigured && supabase) {
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.user) {
@@ -243,35 +292,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { success: true, message: 'Magic link authenticated! Welcome back.' };
   };
 
+  // OAuth via server-side Passport.js (redirects to /auth/google or /auth/github)
   const signInWithOAuth = async (provider: 'google' | 'github') => {
-    const fallbackUser: AuthUser = {
-      id: `${provider}_${Date.now()}`,
-      email: `creator.${provider}@schrodinger.ai`,
-      name: `${provider.toUpperCase()} Creator`,
-      avatarUrl: provider === 'github' ? 'https://github.com/github.png' : undefined,
-      provider: provider
-    };
-
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { error } = await supabase.auth.signInWithOAuth({ provider });
-        if (error) {
-          console.error('Supabase OAuth error, falling back to local auth:', error);
-          setUser(fallbackUser);
-          localStorage.setItem('schrodinger_local_user', JSON.stringify(fallbackUser));
-          return { success: true };
-        }
-        return { success: true };
-      } catch (err) {
-        console.error('OAuth exception, falling back to local auth:', err);
-        setUser(fallbackUser);
-        localStorage.setItem('schrodinger_local_user', JSON.stringify(fallbackUser));
-        return { success: true };
-      }
-    }
-
-    setUser(fallbackUser);
-    localStorage.setItem('schrodinger_local_user', JSON.stringify(fallbackUser));
+    // Redirect the browser to the server-side OAuth route
+    window.location.href = `/auth/${provider}`;
+    // This navigates away, so we return success optimistically
     return { success: true };
   };
 
@@ -287,6 +312,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    // Destroy server-side Passport session
+    try {
+      await fetch('/auth/logout', { method: 'POST' });
+    } catch { /* ignore if server unreachable */ }
+
     if (isSupabaseConfigured && supabase) {
       await supabase.auth.signOut();
     }
