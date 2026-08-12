@@ -122,14 +122,6 @@ export const Navbar: React.FC = () => {
           {/* User Auth & Settings Buttons */}
           <div className="flex items-center gap-2.5">
             <button
-              onClick={toggleTheme}
-              className="p-2 bg-white dark:bg-[#121212] border border-[#121212]/20 dark:border-[#F7F5F2]/20 hover:border-[#121212] dark:hover:border-[#F7F5F2] text-[#121212] dark:text-[#F7F5F2] flex items-center justify-center cursor-pointer transition-colors"
-              title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
-            >
-              {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-            </button>
-
-            <button
               onClick={() => setSettingsModalOpen(true)}
               className="p-2 bg-white dark:bg-[#121212] border border-[#121212]/20 dark:border-[#F7F5F2]/20 hover:border-[#121212] dark:hover:border-[#F7F5F2] text-[#121212] dark:text-[#F7F5F2] flex items-center justify-center cursor-pointer transition-colors"
               title="AI & Cloudflare Settings"
@@ -202,19 +194,7 @@ export const Navbar: React.FC = () => {
                 <span className="text-[10px] font-mono text-[#121212]/50 dark:text-[#F7F5F2]/50">SUPABASE</span>
               </button>
 
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  toggleTheme();
-                }}
-                className="w-full text-left py-2.5 text-xs font-bold uppercase tracking-widest text-[#121212] dark:text-[#F7F5F2] border-b border-[#121212]/10 dark:border-[#F7F5F2]/10 flex items-center justify-between"
-              >
-                <div className="flex items-center gap-2">
-                  {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-                  <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
-                </div>
-                <span className="text-[10px] font-mono text-[#121212]/50 dark:text-[#F7F5F2]/50">THEME</span>
-              </button>
+
 
               <button
                 onClick={() => scrollToSection('tools')}
