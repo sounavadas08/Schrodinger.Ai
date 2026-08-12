@@ -307,11 +307,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { success: true, message: 'Magic link authenticated! Welcome back.' };
   };
 
-  // OAuth via server-side Passport.js (redirects to /auth/google or /auth/github)
+  // OAuth via Supabase natively when configured, falling back to server Passport.js
   const signInWithOAuth = async (provider: 'google' | 'github') => {
-    // Redirect the browser to the server-side OAuth route
+    if (isSupabaseConfigured && supabase) {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) {
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    }
+
+    // Fallback redirect to local express server OAuth routes
     window.location.href = `/auth/${provider}`;
-    // This navigates away, so we return success optimistically
     return { success: true };
   };
 
