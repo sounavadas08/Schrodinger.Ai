@@ -1,5 +1,5 @@
 import React from 'react';
-import { Globe, Instagram, Heart, Shield, FileText } from 'lucide-react';
+import { Globe, Instagram, Github, Linkedin, Heart, Shield, FileText } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
@@ -42,6 +42,28 @@ export const Footer: React.FC = () => {
                 >
                   <Instagram className="w-3.5 h-3.5 text-[#F7F5F2]/70" />
                   <span>Instagram @myscalper.in</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://github.com/sounavadas08"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#F7F5F2] transition-colors inline-flex items-center gap-2"
+                >
+                  <Github className="w-3.5 h-3.5 text-[#F7F5F2]/70" />
+                  <span>GitHub @sounavadas08</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.linkedin.com/in/sounava444"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#F7F5F2] transition-colors inline-flex items-center gap-2"
+                >
+                  <Linkedin className="w-3.5 h-3.5 text-[#F7F5F2]/70" />
+                  <span>LinkedIn @sounava444</span>
                 </a>
               </li>
             </ul>
